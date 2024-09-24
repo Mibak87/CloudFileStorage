@@ -1,0 +1,19 @@
+version: '3.3'
+
+services:
+  db:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=cloudfilestoragedb'
+      - 'POSTGRES_PASSWORD=14159265'
+      - 'POSTGRES_USER=postgres'
+    ports:
+      - '5432'
+
+  app:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db

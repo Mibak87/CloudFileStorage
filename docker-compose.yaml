@@ -10,10 +10,3 @@ services:
     ports:
       - '5432'
 
-  app:
-    build:
-      context: .
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db

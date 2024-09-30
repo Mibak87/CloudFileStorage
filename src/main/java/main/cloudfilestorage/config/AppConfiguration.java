@@ -14,7 +14,7 @@ public class AppConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/files","/search").permitAll())
+                        .requestMatchers("/files","/search","/registration").permitAll())
                 .formLogin(form -> form
                         .loginPage("/login").permitAll())
                 .build();

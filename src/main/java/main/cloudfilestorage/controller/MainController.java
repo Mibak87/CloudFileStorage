@@ -1,44 +1,50 @@
 package main.cloudfilestorage.controller;
 
+import lombok.extern.slf4j.Slf4j;
+import main.cloudfilestorage.dto.RegisterDto;
 import main.cloudfilestorage.model.User;
 import main.cloudfilestorage.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
+@Slf4j
 @Controller
 public class MainController {
 
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    public MainController(UserService userService) {
+        this.userService = userService;
+    }
 
     @RequestMapping("/login")
-    public String login() {
+    public String login(Model model) {
+        model.addAttribute("user", new User());
+        log.info("Зашли в авторизацию.");
         return "login";
     }
 
-    @PostMapping("/login")
-    public String processLogin(@RequestParam String userName, @RequestParam String password) {
-
-        return "redirect:/files";
-    }
-
     @RequestMapping("/registration")
-    public String register() {
+    public String register(Model model) {
+        model.addAttribute("userRegister", new RegisterDto());
+        log.info("Зашли в регистрацию.");
         return "registration";
     }
 
     @PostMapping("/registration")
-    public String processLogin(@RequestParam String userName, @RequestParam String password,
-                               @RequestParam String passwordRepeat) {
-        if (password.equals(passwordRepeat)) {
-            User user = new User(userName,password);
+    public String processRegister(@ModelAttribute("userRegister") RegisterDto registerDto) {
+        //if (registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
+            log.info("Регистрация пользователя " + "<" + registerDto.getUserName() + ">");
+            User user = new User(registerDto.getUserName(),registerDto.getPassword());
             userService.register(user);
-            return "redirect:/files";
-        }
-        return "redirect:/registration";
+            return "redirect:/login";
+        //}
+        //return "redirect:/registration";
     }
 
     @RequestMapping("/files")

@@ -13,24 +13,26 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
-public class AppConfiguration {
+public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/search","/registration").permitAll()
+                        .requestMatchers("/registration").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/files",true)
+                        .usernameParameter("username")
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/",true)
                         .permitAll())
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout")))
                 .build();
     }
 
-    /*@Bean
+    @Bean
     public UserDetailsService userDetailsService() {
         UserDetails userDetails = User.withDefaultPasswordEncoder()
                 .username("aaa")
@@ -39,5 +41,5 @@ public class AppConfiguration {
                 .build();
 
         return new InMemoryUserDetailsManager(userDetails);
-    }*/
+    }
 }

@@ -1,12 +1,26 @@
-version: '3.3'
+version: '3'
 
 services:
   db:
-    image: 'postgres:latest'
+    image: postgres:latest
     environment:
-      - 'POSTGRES_DB=cloudfilestoragedb'
-      - 'POSTGRES_PASSWORD=14159265'
-      - 'POSTGRES_USER=postgres'
+      - POSTGRES_DB=cloudfilestoragedb
+      - POSTGRES_PASSWORD=14159265
+      - POSTGRES_USER=postgres
     ports:
       - '5432'
 
+  minio:
+    restart: always
+    image: minio/minio:latest
+    ports:
+      - '9000:9000'
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    command: server /data --console-address :9090
+    volumes:
+      - minio-data:/data
+
+volumes:
+  minio-data:

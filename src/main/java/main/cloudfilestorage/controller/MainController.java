@@ -57,18 +57,11 @@ public class MainController {
         return "files";
     }
 
-    @PostMapping("/search")
-    public String postSearch(@ModelAttribute("query") String query, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addAttribute("query", query);
-        return "redirect:/search";
-    }
-
     @GetMapping("/search")
-    public String search(@RequestParam(required = false) String query, Model model) {
+    public String search(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         model.addAttribute("username", username);
-        model.addAttribute("query", query);
         return "search";
     }
 }

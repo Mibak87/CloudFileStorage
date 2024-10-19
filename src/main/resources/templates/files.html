@@ -24,6 +24,16 @@
             <button type="submit" class="btn btn-primary">Поиск</button>
         </div>
     </form>
+    <span>Загрузить файл.</span>
+    <form th:action="@{/upload}" method="post" enctype="multipart/form-data">
+        <div>
+            <label for="file">Выберите файл для загрузки</label>
+            <input type="file" id="file" name="file"/>
+        </div>
+        <div>
+            <button>Загрузить</button>
+        </div>
+    </form>
 </div>
 </body>
 </html>

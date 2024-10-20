@@ -1,9 +1,6 @@
 package main.cloudfilestorage.repository;
 
-import io.minio.ListObjectsArgs;
-import io.minio.MinioClient;
-import io.minio.PutObjectArgs;
-import io.minio.Result;
+import io.minio.*;
 import io.minio.messages.Item;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,5 +45,14 @@ public class MinioRepository {
             e.printStackTrace();
         }
         return files;
+    }
+
+    public void deleteFile(String fileName) {
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder().bucket("user-files").object(fileName).build());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

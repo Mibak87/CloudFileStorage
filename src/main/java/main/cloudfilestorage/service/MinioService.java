@@ -25,6 +25,10 @@ public class MinioService {
         minioRepository.uploadFile(fileName,uploadFileDto.getMultipartFile());
     }
 
+    public void deleteFile(String fileName) {
+        minioRepository.deleteFile(fileName);
+    }
+
     public List<String> getUserFiles(String userName, String param) {
         //if (param == null) {
             String userDirectory = getUserDirectory(userName);

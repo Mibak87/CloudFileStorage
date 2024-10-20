@@ -27,6 +27,10 @@
     <span>Ваши файлы:</span>
     <div th:each="file:${userFiles}">
         <span th:text="${file}"></span>
+        <form th:action="@{/delete}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="fileToDelete" th:value="${file}"/>
+            <button type="submit">Удалить</button>
+        </form>
     </div>
     <span>Загрузить файл.</span>
     <form th:action="@{/upload}" method="post" enctype="multipart/form-data">

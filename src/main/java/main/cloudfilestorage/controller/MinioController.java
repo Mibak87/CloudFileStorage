@@ -6,7 +6,6 @@ import main.cloudfilestorage.service.MinioService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +21,7 @@ public class MinioController {
     }
 
     @PostMapping("/upload")
-    public String uploadFileToMinIO(@RequestParam("file") MultipartFile file, Model model) {
+    public String uploadFileToMinIO(@RequestParam("file") MultipartFile file) {
         try {
             log.info("Пытаемся загрузить на обменник файл.");
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -34,6 +33,12 @@ public class MinioController {
             log.error("Загрузка не удалась.");
             e.printStackTrace();
         }
+        return "redirect:/";
+    }
+
+    @PostMapping("/delete")
+    public String deleteFileFromMinio(@RequestParam String fileToDelete) {
+        minioService.deleteFile(fileToDelete);
         return "redirect:/";
     }
 }

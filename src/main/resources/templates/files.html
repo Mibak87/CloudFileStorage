@@ -24,6 +24,10 @@
             <button type="submit" class="btn btn-primary">Поиск</button>
         </div>
     </form>
+    <span>Ваши файлы:</span>
+    <div th:each="file:${userFiles}">
+        <span th:text="${file}"></span>
+    </div>
     <span>Загрузить файл.</span>
     <form th:action="@{/upload}" method="post" enctype="multipart/form-data">
         <div>

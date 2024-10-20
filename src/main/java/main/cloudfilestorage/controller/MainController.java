@@ -3,6 +3,7 @@ package main.cloudfilestorage.controller;
 import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.RegisterDto;
 import main.cloudfilestorage.model.User;
+import main.cloudfilestorage.service.MinioService;
 import main.cloudfilestorage.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -11,15 +12,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Slf4j
 @Controller
 public class MainController {
 
     private final UserService userService;
+    private final MinioService minioService;
 
     @Autowired
-    public MainController(UserService userService) {
+    public MainController(UserService userService, MinioService minioService) {
         this.userService = userService;
+        this.minioService = minioService;
     }
 
     @RequestMapping("/login")
@@ -48,11 +53,12 @@ public class MainController {
     }
 
     @RequestMapping("/")
-    public String files(Model model) {
+    public String files(@RequestParam(required = false) String param, Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         model.addAttribute("username", username);
-        model.addAttribute("query");
+        List<String> userFiles = minioService.getUserFiles(username,param);
+        model.addAttribute("userFiles", userFiles);
         return "files";
     }
 

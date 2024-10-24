@@ -6,6 +6,7 @@ import main.cloudfilestorage.service.MinioService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +40,12 @@ public class MinioController {
     @PostMapping("/delete")
     public String deleteFileFromMinio(@RequestParam String fileToDelete) {
         minioService.deleteFile(fileToDelete);
+        return "redirect:/";
+    }
+
+    @PostMapping("/rename")
+    public String renameFile(@RequestParam String newFileName, @RequestParam String fileName) {
+        minioService.renameFile(fileName,newFileName);
         return "redirect:/";
     }
 }

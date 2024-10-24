@@ -5,6 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Файловое хранилище</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        /* Стили для фона */
+        .modal {
+            display: none; /* Скрыть по умолчанию */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон */
+        }
+        /* Стили для самой формы */
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px; /* Ширина формы */
+            text-align: center;
+        }
+        /* Кнопка закрытия */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 <nav class="navbar navbar-default" style="background-color: lightblue">
@@ -27,10 +66,59 @@
     <span>Ваши файлы:</span>
     <div th:each="file:${userFiles}">
         <span th:text="${file}"></span>
-        <form th:action="@{/delete}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/delete}" method="post">
             <input type="hidden" name="fileToDelete" th:value="${file}"/>
             <button type="submit">Удалить</button>
         </form>
+        <form th:action="@{/rename}" method="post">
+            <input type="hidden" name="fileName" th:value="${file}"/>
+            <input name="newFileName"/>
+            <button type="submit">Переименовать</button>
+        </form>
+        <button id="openModal">Переименовать2</button>
+
+        <!-- Всплывающее окно -->
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Введите новое имя</h3>
+                <input type="text" placeholder="Ваше имя" id="nameInput">
+                <br><br>
+                <button id="submitBtn">Переименовать</button>
+            </div>
+        </div>
+
+        <script>
+            // Получаем элементы
+            const modal = document.getElementById("myModal");
+            const btn = document.getElementById("openModal");
+            const span = document.getElementsByClassName("close")[0];
+            const submitBtn = document.getElementById("submitBtn");
+
+            // Открытие модального окна при нажатии на кнопку
+            btn.onclick = function() {
+                modal.style.display = "block";
+            }
+
+            // Закрытие модального окна при нажатии на (x)
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            // Закрытие модального окна при клике вне его
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            // Обработка нажатия кнопки "Отправить"
+            submitBtn.onclick = function() {
+                const name = document.getElementById("nameInput").value;
+                alert("Вы ввели: " + name);
+                modal.style.display = "none"; // Закрыть модальное окно
+            }
+        </script>
     </div>
     <span>Загрузить файл.</span>
     <form th:action="@{/upload}" method="post" enctype="multipart/form-data">

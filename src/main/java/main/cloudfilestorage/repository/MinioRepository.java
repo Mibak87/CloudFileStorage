@@ -55,4 +55,22 @@ public class MinioRepository {
             e.printStackTrace();
         }
     }
+
+    public void renameFile(String fileName, String newName) {
+        try {
+            minioClient.copyObject(
+                    CopyObjectArgs.builder()
+                            .bucket("user-files")
+                            .object(newName)
+                            .source(
+                                    CopySource.builder()
+                                            .bucket("user-files")
+                                            .object(fileName)
+                                            .build())
+                            .build());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        deleteFile(fileName);
+    }
 }

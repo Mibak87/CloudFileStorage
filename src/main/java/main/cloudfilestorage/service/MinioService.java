@@ -5,6 +5,7 @@ import main.cloudfilestorage.dto.UploadFileDto;
 import main.cloudfilestorage.repository.MinioRepository;
 import main.cloudfilestorage.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class MinioService {
 
     public void uploadFile(UploadFileDto uploadFileDto) {
         String userDirectory = getUserDirectory(uploadFileDto.getUserName());
-        String fileName = userDirectory + "-" + uploadFileDto.getFileName();
+        String fileName = userDirectory + uploadFileDto.getFileName();
         minioRepository.uploadFile(fileName,uploadFileDto.getMultipartFile());
     }
 
@@ -37,6 +38,11 @@ public class MinioService {
         minioRepository.renameFile(fileName, getFileFullName(fileName,newName));
     }
 
+    public Resource downloadFile(String fileName) {
+        log.info("Скачивание файла "+fileName);
+        return minioRepository.downloadFile(fileName,fileName);//getFileShortName(fileName));
+    }
+
     public List<String> getUserFiles(String userName, String param) {
         //if (param == null) {
             String userDirectory = getUserDirectory(userName);
@@ -47,12 +53,17 @@ public class MinioService {
 
     private String getUserDirectory(String userName) {
         Long userId = userRepository.findByUsername(userName).getId();
-        return "user-" + userId + "-files";
+        return "user-" + userId + "-files/";
     }
 
     private String getFileFullName(String fileName, String newName) {
-        int index = fileName.lastIndexOf("-");
+        int index = fileName.lastIndexOf("/");
         String userDirectory = fileName.substring(0,index + 1);
         return userDirectory + newName;
+    }
+
+    private String getFileShortName(String fileName) {
+        int index = fileName.lastIndexOf("/");
+        return "D:/Downloads/" + fileName.substring(index + 1);
     }
 }

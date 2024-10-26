@@ -2,6 +2,8 @@ package main.cloudfilestorage.repository;
 
 import io.minio.*;
 import io.minio.messages.Item;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -72,5 +74,19 @@ public class MinioRepository {
             e.printStackTrace();
         }
         deleteFile(fileName);
+    }
+
+    public Resource downloadFile(String fileName, String fileShortName) {
+        try {
+            InputStream inputStream = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket("user-files")
+                            .object(fileName)
+                            .build());
+            return new InputStreamResource(inputStream);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

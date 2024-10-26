@@ -30,19 +30,6 @@
             width: 300px; /* Ширина формы */
             text-align: center;
         }
-        /* Кнопка закрытия */
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -68,23 +55,25 @@
         <span th:text="${file}"></span>
         <form th:action="@{/delete}" method="post">
             <input type="hidden" name="fileToDelete" th:value="${file}"/>
-            <button type="submit">Удалить</button>
+            <button type="submit" class="btn btn-primary">Удалить</button>
         </form>
-        <form th:action="@{/rename}" method="post">
-            <input type="hidden" name="fileName" th:value="${file}"/>
-            <input name="newFileName"/>
-            <button type="submit">Переименовать</button>
-        </form>
-        <button id="openModal">Переименовать2</button>
-
+        <button id="openModal" class="btn btn-primary">Переименовать</button>
+<!--        <form th:action="@{/download}" method="get">-->
+<!--            <input type="hidden" name="fileName" th:value="${file}"/>-->
+<!--            <button type="submit" class="btn btn-primary">Скачать</button>-->
+<!--        </form>-->
+        <a th:href="@{/download(fileName=${file})}" th:download="${file}">Скачать файл</a>
         <!-- Всплывающее окно -->
         <div id="myModal" class="modal">
             <div class="modal-content">
-                <span class="close">&times;</span>
-                <h3>Введите новое имя</h3>
-                <input type="text" placeholder="Ваше имя" id="nameInput">
-                <br><br>
-                <button id="submitBtn">Переименовать</button>
+                <form th:action="@{/rename}" method="post">
+                    <span class="close">&times;</span><br>
+                    <span>Введите новое имя</span>
+                    <input type="hidden" name="fileName" th:value="${file}"/>
+                    <input type="text" name="newFileName" placeholder="Новое имя" id="nameInput">
+                    <br>
+                    <button id="submitBtn" class="btn btn-primary">Переименовать</button>
+                </form>
             </div>
         </div>
 
@@ -115,10 +104,27 @@
             // Обработка нажатия кнопки "Отправить"
             submitBtn.onclick = function() {
                 const name = document.getElementById("nameInput").value;
-                alert("Вы ввели: " + name);
+                // const params = new URLSearchParams();
+                // params.append('name', name);
+                //
+                // // Отправка данных на эндпойнт
+                // fetch('@{/rename}', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/x-www-form-urlencoded'
+                //     },
+                //     body: params.toString()
+                // })
+                //     .then(response => {
+                //     if (!response.ok) {
+                //         throw new Error('Network response was not ok');
+                //     }
+                //     return response.text();
+                // })
                 modal.style.display = "none"; // Закрыть модальное окно
             }
         </script>
+        <br>
     </div>
     <span>Загрузить файл.</span>
     <form th:action="@{/upload}" method="post" enctype="multipart/form-data">
@@ -127,7 +133,7 @@
             <input type="file" id="file" name="file"/>
         </div>
         <div>
-            <button>Загрузить</button>
+            <button class="btn btn-primary">Загрузить</button>
         </div>
     </form>
 </div>

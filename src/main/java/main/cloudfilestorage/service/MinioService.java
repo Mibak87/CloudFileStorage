@@ -1,6 +1,7 @@
 package main.cloudfilestorage.service;
 
 import lombok.extern.slf4j.Slf4j;
+import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
 import main.cloudfilestorage.repository.MinioRepository;
 import main.cloudfilestorage.repository.UserRepository;
@@ -24,23 +25,24 @@ public class MinioService {
     }
 
     public void uploadFile(UploadFileDto uploadFileDto) {
-        String userDirectory = getUserDirectory(uploadFileDto.getUserName());
-        String fileName = userDirectory + uploadFileDto.getFileName();
-        minioRepository.uploadFile(fileName,uploadFileDto.getMultipartFile());
+        minioRepository.uploadFile(getFileFullName(uploadFileDto.getUserName(),uploadFileDto.getFileName())
+                ,uploadFileDto.getMultipartFile());
     }
 
-    public void deleteFile(String fileName) {
-        minioRepository.deleteFile(fileName);
+    public void deleteFile(String fileName,String userName) {
+        log.info("Удаляем файл " + fileName + " у пользователя " + userName + " .");
+        minioRepository.deleteFile(getFileFullName(userName,fileName));
     }
 
-    public void renameFile(String fileName, String newName) {
-        log.info("Переименование файла "+fileName+" в файл "+getFileFullName(fileName,newName));
-        minioRepository.renameFile(fileName, getFileFullName(fileName,newName));
+    public void renameFile(RenameFileDto renameFileDto) {
+        log.info("Переименование файла "+renameFileDto.getFileName()+" в файл "+renameFileDto.getNewFileName());
+        minioRepository.renameFile(getFileFullName(renameFileDto.getUserName(),renameFileDto.getFileName())
+                ,getFileFullName(renameFileDto.getUserName(),renameFileDto.getNewFileName()));
     }
 
-    public Resource downloadFile(String fileName) {
-        log.info("Скачивание файла "+fileName);
-        return minioRepository.downloadFile(fileName,fileName);//getFileShortName(fileName));
+    public Resource downloadFile(String fileName,String userName) {
+        log.info("Скачивание файла " + fileName);
+        return minioRepository.downloadFile(getFileFullName(userName,fileName),fileName);
     }
 
     public List<String> getUserFiles(String userName, String param) {
@@ -56,10 +58,8 @@ public class MinioService {
         return "user-" + userId + "-files/";
     }
 
-    private String getFileFullName(String fileName, String newName) {
-        int index = fileName.lastIndexOf("/");
-        String userDirectory = fileName.substring(0,index + 1);
-        return userDirectory + newName;
+    private String getFileFullName(String userName, String fileName) {
+        return getUserDirectory(userName) + fileName;
     }
 
     private String getFileShortName(String fileName) {

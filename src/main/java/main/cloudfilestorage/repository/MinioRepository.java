@@ -7,6 +7,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +23,11 @@ public class MinioRepository {
 
     public void uploadFile(String fileName, MultipartFile file) {
         try (InputStream inputStream = file.getInputStream()) {
-            minioClient.putObject(PutObjectArgs.builder().bucket("user-files").object(fileName)
-                    .stream(inputStream, -1, 10485760).build());
+            minioClient.putObject(PutObjectArgs.builder()
+                    .bucket("user-files")
+                    .object(fileName)
+                    .stream(inputStream, -1, 10485760)
+                    .build());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,7 +56,10 @@ public class MinioRepository {
     public void deleteFile(String fileName) {
         try {
             minioClient.removeObject(
-                    RemoveObjectArgs.builder().bucket("user-files").object(fileName).build());
+                    RemoveObjectArgs.builder()
+                            .bucket("user-files")
+                            .object(fileName)
+                            .build());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -81,12 +88,26 @@ public class MinioRepository {
             InputStream inputStream = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket("user-files")
-                            .object(fileName)
-                            .build());
-            return new InputStreamResource(inputStream);
+                        .object(fileName)
+                        .build());
+        return new InputStreamResource(inputStream);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+        return null;
+}
+
+    public void createFolder(String folderName) {
+        try {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket("user-files")
+                            .object(folderName + "/")
+                            .stream(new ByteArrayInputStream(new byte[0]), 0, -1)
+                            .build()
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
     }
 }

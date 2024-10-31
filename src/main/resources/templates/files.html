@@ -102,6 +102,14 @@
         </script>
         <br>
     </div>
+    <br>
+    <form th:action="@{/createfolder}" method="post">
+        <div class="mb-3">
+            <input type="text" name="folderName" class="form-email" id="folder">
+            <button type="submit" class="btn btn-primary">Создать папку</button>
+        </div>
+    </form>
+    <br>
     <span>Загрузить файл.</span>
     <form th:action="@{/upload}" method="post" enctype="multipart/form-data">
         <div>

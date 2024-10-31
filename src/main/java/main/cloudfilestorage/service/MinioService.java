@@ -53,6 +53,10 @@ public class MinioService {
         //}
     }
 
+    public void createFolder(String folderName,String userName) {
+        minioRepository.createFolder(getUserDirectory(userName) + folderName);
+    }
+
     private String getUserDirectory(String userName) {
         Long userId = userRepository.findByUsername(userName).getId();
         return "user-" + userId + "-files/";

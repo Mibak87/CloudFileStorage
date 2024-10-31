@@ -68,4 +68,12 @@ public class MinioController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                 .body(file);
     }
+
+    @PostMapping("/createfolder")
+    public String createFolder(@RequestParam String folderName) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+        minioService.createFolder(folderName,userName);
+        return "redirect:/";
+    }
 }

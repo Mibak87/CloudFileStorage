@@ -45,7 +45,7 @@ public class MinioRepository {
             );
             for (Result<Item> result : results) {
                 Item item = result.get();
-                files.add(item.objectName().replace(userDirectory,""));
+                files.add(item.objectName());//.replace(userDirectory,""));
             }
         } catch (Exception e) {
             e.printStackTrace();

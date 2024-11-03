@@ -2,6 +2,7 @@ package main.cloudfilestorage.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.RegisterDto;
+import main.cloudfilestorage.dto.ViewFilesDto;
 import main.cloudfilestorage.model.User;
 import main.cloudfilestorage.service.MinioService;
 import main.cloudfilestorage.service.UserService;
@@ -52,13 +53,14 @@ public class MainController {
         //return "redirect:/registration";
     }
 
-    @RequestMapping("/")
-    public String files(@RequestParam(required = false) String param, Model model) {
+    @GetMapping("/")
+    public String files(@RequestParam(required = false) String path, Model model) {
+        log.info("Выбрана папка: " + path);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         model.addAttribute("username", username);
-        List<String> userFiles = minioService.getUserFiles(username,param);
-        model.addAttribute("userFiles", userFiles);
+        ViewFilesDto viewFilesDto = minioService.getUserFiles(username,path);
+        model.addAttribute("viewFilesDto", viewFilesDto);
         return "files";
     }
 

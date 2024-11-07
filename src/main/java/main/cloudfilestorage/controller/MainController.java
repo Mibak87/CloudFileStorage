@@ -59,6 +59,7 @@ public class MainController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         model.addAttribute("username", username);
+        model.addAttribute("folder",path);
         ViewFilesDto viewFilesDto = minioService.getUserFiles(username,path);
         model.addAttribute("viewFilesDto", viewFilesDto);
         return "files";

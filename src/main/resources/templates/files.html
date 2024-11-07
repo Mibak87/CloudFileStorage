@@ -167,6 +167,7 @@
         <div>
             <label for="file">Выберите файл для загрузки</label>
             <input type="file" id="file" name="file"/>
+            <input type="hidden" name="path" th:value="${folder}"/>
         </div>
         <div>
             <button class="btn btn-primary">Загрузить</button>

@@ -2,6 +2,7 @@ package main.cloudfilestorage.repository;
 
 import io.minio.*;
 import io.minio.messages.Item;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Repository;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Repository
 public class MinioRepository {
 
@@ -22,6 +24,7 @@ public class MinioRepository {
     }
 
     public void uploadFile(String fileName, MultipartFile file) {
+        log.info("Загружаем файл: " + fileName);
         try (InputStream inputStream = file.getInputStream()) {
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket("user-files")

@@ -1,6 +1,7 @@
 package main.cloudfilestorage.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
 import main.cloudfilestorage.service.MinioService;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,13 +27,18 @@ public class MinioController {
     }
 
     @PostMapping("/upload")
-    public String uploadFileToMinIO(@RequestParam("file") MultipartFile file) {
+    public String uploadFileToMinIO(@RequestParam("file") MultipartFile file,@RequestParam("path") String path) {
         try {
-            log.info("Пытаемся загрузить на обменник файл.");
+            log.info("Пытаемся загрузить на обменник файл в папку " + path);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String userName = authentication.getName();
             String fileName = file.getOriginalFilename();
-            UploadFileDto uploadFileDto = new UploadFileDto(userName,fileName,file);
+            UploadFileDto uploadFileDto = UploadFileDto.builder()
+                    .userName(userName)
+                    .fileName(fileName)
+                    .path(path)
+                    .multipartFile(file)
+                    .build();
             minioService.uploadFile(uploadFileDto);
         } catch (Exception e) {
             log.error("Загрузка не удалась.");
@@ -43,27 +48,43 @@ public class MinioController {
     }
 
     @PostMapping("/delete")
-    public String deleteFileFromMinio(@RequestParam String fileToDelete) {
+    public String deleteFileFromMinio(@RequestParam String fileToDelete,@RequestParam(required = false) String path) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
-        minioService.deleteFile(fileToDelete,userName);
+        FileDto fileDto = FileDto.builder()
+                .userName(userName)
+                .fileName(fileToDelete)
+                .path(path)
+                .build();
+        minioService.deleteFile(fileDto);
         return "redirect:/";
     }
 
     @PostMapping("/rename")
-    public String renameFile(@RequestParam String newFileName, @RequestParam String fileName) {
+    public String renameFile(@RequestParam String newFileName, @RequestParam String fileName
+            ,@RequestParam(required = false) String path) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
-        RenameFileDto renameFileDto = new RenameFileDto(userName,fileName,newFileName);
+        RenameFileDto renameFileDto = RenameFileDto.builder()
+                .userName(userName)
+                .fileName(fileName)
+                .path(path)
+                .newFileName(newFileName)
+                .build();
         minioService.renameFile(renameFileDto);
         return "redirect:/";
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName) {
+    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName,@RequestParam(required = false) String path) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        Resource file = minioService.downloadFile(fileName,username);
+        String userName = authentication.getName();
+        FileDto fileDto = FileDto.builder()
+                .userName(userName)
+                .fileName(fileName)
+                .path(path)
+                .build();
+        Resource file = minioService.downloadFile(fileDto);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                 .body(file);

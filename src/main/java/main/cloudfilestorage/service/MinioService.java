@@ -62,42 +62,34 @@ public class MinioService {
     public ViewFilesDto getUserFiles(String userName, String path) {
         ViewFilesDto viewFilesDto = new ViewFilesDto();
         String userDirectory = getUserDirectory(userName);
-        log.info("Получаем все файлы пользователя " + userName);
+        if (path != null) {
+            userDirectory = userDirectory + path;
+        }
+        log.info("Получаем все файлы пользователя " + userName + " из папки " + userDirectory);
         List<String> allUserFiles = minioRepository.getAllFilesByUser(userDirectory);
         log.info("Вот они: " + allUserFiles);
         List<String> userFiles = new ArrayList<>();
         List<String> userDirectories = new ArrayList<>();
-        List<String> userPath = new ArrayList<>();
-        if (path == null) {
-            viewFilesDto.setPath(userPath);
-            for (String userFile : allUserFiles) {
-                String[] files = userFile.split("/");
-                if (files.length == 2 && !userFile.endsWith("/")) {
-                    userFiles.add(files[1]);
-                    continue;
-                }
-                userDirectories.add(files[1] + "/");
+        //List<String> userPath = new ArrayList<>();
+        viewFilesDto.setPath(userDirectory);
+        for (String userFile : allUserFiles) {
+            if (userFile.equals(userDirectory)) {
+                continue;
             }
-            viewFilesDto.setFiles(userFiles);
-            viewFilesDto.setDirectories(userDirectories);
-            return  viewFilesDto;
-        } else {
-            for (String userFile : allUserFiles) {
-                if (userFile.contains(path)) {
-                    String[] files = userFile.split(path);
-                    if (files.length == 2) {
-                        userFiles.add(files[1]);
-                        userPath.add(files[0] + path);
-                    }
-                }
+            String files = userFile.split(userDirectory)[1];
+            if (files.endsWith("/")) {
+                userDirectories.add(files);
+                continue;
             }
-            viewFilesDto.setFiles(userFiles);
-            return viewFilesDto;
+            userFiles.add(files);
         }
+        viewFilesDto.setFiles(userFiles);
+        viewFilesDto.setDirectories(userDirectories);
+        return viewFilesDto;
     }
 
-    public void createFolder(String folderName,String userName) {
-        minioRepository.createFolder(getUserDirectory(userName) + folderName);
+    public void createFolder(String folderName,String path,String userName) {
+        minioRepository.createFolder(getFileFullName(userName,path,folderName));
     }
 
     private String getUserDirectory(String userName) {

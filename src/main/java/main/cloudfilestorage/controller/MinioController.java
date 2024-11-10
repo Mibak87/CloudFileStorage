@@ -48,7 +48,7 @@ public class MinioController {
     }
 
     @PostMapping("/delete")
-    public String deleteFileFromMinio(@RequestParam String fileToDelete,@RequestParam(required = false) String path) {
+    public String deleteFileFromMinio(@RequestParam String fileToDelete,@RequestParam("path") String path) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()
@@ -61,8 +61,8 @@ public class MinioController {
     }
 
     @PostMapping("/rename")
-    public String renameFile(@RequestParam String newFileName, @RequestParam String fileName
-            ,@RequestParam(required = false) String path) {
+    public String renameFile(@RequestParam String newFileName, @RequestParam("path") String fileName
+            ,@RequestParam String path) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         RenameFileDto renameFileDto = RenameFileDto.builder()
@@ -76,7 +76,7 @@ public class MinioController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName,@RequestParam(required = false) String path) {
+    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName,@RequestParam("path") String path) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()
@@ -91,11 +91,12 @@ public class MinioController {
     }
 
     @PostMapping("/createfolder")
-    public String createFolder(@RequestParam String folderName) {
+    public String createFolder(@RequestParam String folderName,@RequestParam("path") String path) {
+        log.info("Хотим создать папку внутри папки " + path);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         if (!folderName.isEmpty()) {
-            minioService.createFolder(folderName, userName);
+            minioService.createFolder(folderName,path,userName);
         }
         return "redirect:/";
     }

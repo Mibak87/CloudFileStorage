@@ -31,7 +31,7 @@ public class MinioRepository {
                     .object(fileName)
                     .stream(inputStream, -1, 10485760)
                     .build());
-
+            log.info("Файл " + fileName + " успешно загружен.");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -109,6 +109,7 @@ public class MinioRepository {
                             .stream(new ByteArrayInputStream(new byte[0]), 0, -1)
                             .build()
             );
+            log.info("Создали папку с полным названием: " + folderName);
         } catch (Exception e) {
             e.printStackTrace();
         }

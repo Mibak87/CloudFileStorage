@@ -52,11 +52,11 @@
     </form>
     <span>Ваши файлы:</span>
     <br>
-    <div th:each="path:${viewFilesDto.getPath()}">
-        <span th:text="${path}"></span>
-    </div>
+<!--    <div th:each="path:${viewFilesDto.getPath()}">-->
+        <span th:text="${viewFilesDto.getPath()}"></span>
+<!--    </div>-->
     <div th:each="directory:${viewFilesDto.getDirectories()}">
-        <a th:href="@{/(path=${directory})}" th:text="${directory}"></a>
+        <a th:href="@{/(path=${viewFilesDto.getPath().concat(directory)})}" th:text="${directory}"></a>
 <!--        <span th:text="${directory}"></span>-->
         <form th:action="@{/delete}" method="post">
             <input type="hidden" name="fileToDelete" th:value="${directory}"/>

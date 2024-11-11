@@ -62,16 +62,18 @@ public class MinioService {
     public ViewFilesDto getUserFiles(String userName, String path) {
         ViewFilesDto viewFilesDto = new ViewFilesDto();
         String userDirectory = getUserDirectory(userName);
-        if (path != null) {
-            userDirectory = userDirectory + path;
+        if (path == null) {
+            path = "";
+            //userDirectory = userDirectory + path;
         }
+        userDirectory = userDirectory + path;
         log.info("Получаем все файлы пользователя " + userName + " из папки " + userDirectory);
         List<String> allUserFiles = minioRepository.getAllFilesByUser(userDirectory);
         log.info("Вот они: " + allUserFiles);
         List<String> userFiles = new ArrayList<>();
         List<String> userDirectories = new ArrayList<>();
         //List<String> userPath = new ArrayList<>();
-        viewFilesDto.setPath(userDirectory);
+        viewFilesDto.setPath(path);
         for (String userFile : allUserFiles) {
             if (userFile.equals(userDirectory)) {
                 continue;

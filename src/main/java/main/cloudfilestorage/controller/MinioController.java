@@ -44,7 +44,8 @@ public class MinioController {
             log.error("Загрузка не удалась.");
             e.printStackTrace();
         }
-        return "redirect:/";
+        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
+        return url;
     }
 
     @PostMapping("/delete")
@@ -57,7 +58,8 @@ public class MinioController {
                 .path(path)
                 .build();
         minioService.deleteFile(fileDto);
-        return "redirect:/";
+        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
+        return url;
     }
 
     @PostMapping("/rename")
@@ -72,7 +74,8 @@ public class MinioController {
                 .newFileName(newFileName)
                 .build();
         minioService.renameFile(renameFileDto);
-        return "redirect:/";
+        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
+        return url;
     }
 
     @GetMapping("/download")
@@ -98,6 +101,7 @@ public class MinioController {
         if (!folderName.isEmpty()) {
             minioService.createFolder(folderName,path,userName);
         }
-        return "redirect:/";
+        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
+        return url;
     }
 }

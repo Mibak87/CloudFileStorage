@@ -7,7 +7,7 @@ import java.util.Map;
 
 @Data
 public class ViewFilesDto {
-    //private List<String> path;
+    private List<String> pathList;
     private String path;
     private List<String> directories;
     private Map<String,String> allPath;

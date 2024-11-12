@@ -52,9 +52,9 @@
     </form>
     <span>Ваши файлы:</span>
     <br>
-<!--    <div th:each="path:${viewFilesDto.getPath()}">-->
-        <span th:text="${viewFilesDto.getPath()}"></span>
-<!--    </div>-->
+    <div th:each="path:${viewFilesDto.getPathList()}">
+        <span th:text="${path}"></span>
+    </div>
     <div th:each="directory:${viewFilesDto.getDirectories()}">
         <a th:href="@{/(path=${viewFilesDto.getPath().concat(directory)})}" th:text="${directory}"></a>
 <!--        <span th:text="${directory}"></span>-->

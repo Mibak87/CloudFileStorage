@@ -12,7 +12,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -64,7 +66,6 @@ public class MinioService {
         String userDirectory = getUserDirectory(userName);
         if (path == null) {
             path = "";
-            //userDirectory = userDirectory + path;
         }
         userDirectory = userDirectory + path;
         log.info("Получаем все файлы пользователя " + userName + " из папки " + userDirectory);
@@ -72,7 +73,11 @@ public class MinioService {
         log.info("Вот они: " + allUserFiles);
         List<String> userFiles = new ArrayList<>();
         List<String> userDirectories = new ArrayList<>();
-        //List<String> userPath = new ArrayList<>();
+        String[] paths = path.split("/");
+        List<String> pathList = Arrays.stream(paths)
+                .map(s -> s + "/")
+                .collect(Collectors.toCollection(ArrayList::new));
+        viewFilesDto.setPathList(pathList);
         viewFilesDto.setPath(path);
         for (String userFile : allUserFiles) {
             if (userFile.equals(userDirectory)) {

@@ -44,8 +44,8 @@ public class MinioService {
     public void renameFile(RenameFileDto renameFileDto) {
         log.info("Переименование файла "+renameFileDto.getFileName()+" в файл "+renameFileDto.getNewFileName());
         minioRepository.renameFile(getFileFullName(renameFileDto.getUserName()
-                        ,renameFileDto.getFileName()
-                        ,renameFileDto.getPath())
+                        ,renameFileDto.getPath()
+                        ,renameFileDto.getFileName())
                         ,getFileFullName(renameFileDto.getUserName()
                         ,renameFileDto.getPath()
                         ,renameFileDto.getNewFileName()));

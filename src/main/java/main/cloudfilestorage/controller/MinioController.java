@@ -63,8 +63,8 @@ public class MinioController {
     }
 
     @PostMapping("/rename")
-    public String renameFile(@RequestParam String newFileName, @RequestParam("path") String fileName
-            ,@RequestParam String path) {
+    public String renameFile(@RequestParam String newFileName, @RequestParam String fileName
+            ,@RequestParam("path") String path) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         RenameFileDto renameFileDto = RenameFileDto.builder()

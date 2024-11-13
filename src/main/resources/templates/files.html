@@ -30,6 +30,12 @@
             width: 300px; /* Ширина формы */
             text-align: center;
         }
+        .rounded-border {
+            border: 2px solid blue; /* Цвет и ширина границы */
+            border-radius: 10px;    /* Закругление углов */
+            padding: 20px;          /* Внутренний отступ */
+            margin: 10px;           /* Внешний отступ */
+        }
     </style>
 </head>
 <body>
@@ -52,12 +58,13 @@
     </form>
     <span>Ваши файлы:</span>
     <br>
-    <div th:each="path:${viewFilesDto.getPathList()}">
-        <span th:text="${path}"></span>
+    <div class="rounded-border">
+        <div th:each="path:${viewFilesDto.getPathList()}">
+            <a th:href="@{/(path=${viewFilesDto.getLinkMap().get(path)})}" th:text="${path}"></a>
+        </div>
     </div>
     <div th:each="directory:${viewFilesDto.getDirectories()}">
         <a th:href="@{/(path=${viewFilesDto.getPath().concat(directory)})}" th:text="${directory}"></a>
-<!--        <span th:text="${directory}"></span>-->
         <form th:action="@{/delete}" method="post">
             <input type="hidden" name="fileToDelete" th:value="${directory}"/>
             <input type="hidden" name="path" th:value="${folder}"/>

@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -73,12 +71,18 @@ public class MinioService {
         log.info("Вот они: " + allUserFiles);
         List<String> userFiles = new ArrayList<>();
         List<String> userDirectories = new ArrayList<>();
+        Map<String,String> linkMap = new HashMap<>();
+        List<String> pathList = new ArrayList<>();
         String[] paths = path.split("/");
-        List<String> pathList = Arrays.stream(paths)
-                .map(s -> s + "/")
-                .collect(Collectors.toCollection(ArrayList::new));
+        StringBuilder linkPath = new StringBuilder("");
+        for (String singlePath : paths) {
+            pathList.add(singlePath + "/");
+            linkPath.append(singlePath + "/");
+            linkMap.put(singlePath + "/",linkPath.toString());
+        }
         viewFilesDto.setPathList(pathList);
         viewFilesDto.setPath(path);
+        viewFilesDto.setLinkMap(linkMap);
         for (String userFile : allUserFiles) {
             if (userFile.equals(userDirectory)) {
                 continue;

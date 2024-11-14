@@ -60,7 +60,7 @@
     <br>
     <div class="rounded-border">
         <div th:each="path:${viewFilesDto.getPathList()}">
-            <a th:href="@{/(path=${viewFilesDto.getLinkMap().get(path)})}" th:text="${path}"></a>
+            <a th:href="${viewFilesDto.getLinkMap().get(path)}" th:text="${path}"></a>
         </div>
     </div>
     <div th:each="directory:${viewFilesDto.getDirectories()}">

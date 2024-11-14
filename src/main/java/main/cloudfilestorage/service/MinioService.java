@@ -76,12 +76,18 @@ public class MinioService {
         List<String> userDirectories = new ArrayList<>();
         Map<String,String> linkMap = new HashMap<>();
         List<String> pathList = new ArrayList<>();
-        String[] paths = path.split("/");
-        StringBuilder linkPath = new StringBuilder("");
+        String[] paths = ("/" + path).split("/");
+        if (paths.length == 0) {
+            pathList.add("/");
+        }
+        StringBuilder linkPath = new StringBuilder("/?path=");
         for (String singlePath : paths) {
             pathList.add(singlePath + "/");
-            linkPath.append(singlePath + "/");
-            linkMap.put(singlePath + "/",linkPath.toString());
+            if (singlePath.isEmpty()) {
+                linkMap.put(singlePath + "/","/");
+                continue;
+            }
+            linkMap.put(singlePath + "/", linkPath.append(singlePath + "/").toString());
         }
         viewFilesDto.setPathList(pathList);
         viewFilesDto.setPath(path);

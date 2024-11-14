@@ -77,9 +77,10 @@
             <div class="modal-content">
                 <form th:action="@{/rename}" method="post">
                     <span class="close">&times;</span><br>
-                    <span>Введите новое имя</span>
+                    <span>Введите новое имя папки</span>
                     <input type="hidden" name="fileName" th:value="${directory}"/>
-                    <input type="text" name="newFileName" placeholder="Новое имя" id="nameFileInput">
+                    <input type="hidden" name="path" th:value="${folder}"/>
+                    <input type="text" name="newFileName" th:value="${directory.replace('/','')}" id="nameFileInput">
                     <br>
                     <button type="submit" class="btn btn-primary">Переименовать</button>
                 </form>
@@ -129,10 +130,10 @@
             <div class="modal-content">
                 <form th:action="@{/rename}" method="post">
                     <span class="close">&times;</span><br>
-                    <span>Введите новое имя</span>
+                    <span>Введите новое имя файла</span>
                     <input type="hidden" name="fileName" th:value="${file}"/>
                     <input type="hidden" name="path" th:value="${folder}"/>
-                    <input type="text" name="newFileName" placeholder="Новое имя" id="nameInput">
+                    <input type="text" name="newFileName" th:value="${file}" id="nameInput">
                     <br>
                     <button type="submit" class="btn btn-primary">Переименовать</button>
                 </form>

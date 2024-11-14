@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Slf4j
 @Controller
 public class MinioController {
@@ -26,7 +28,7 @@ public class MinioController {
         this.minioService = minioService;
     }
 
-    @PostMapping("/upload")
+    @PostMapping("/uploadfile")
     public String uploadFileToMinIO(@RequestParam("file") MultipartFile file,@RequestParam("path") String path) {
         try {
             log.info("Пытаемся загрузить на обменник файл в папку " + path);
@@ -40,6 +42,30 @@ public class MinioController {
                     .multipartFile(file)
                     .build();
             minioService.uploadFile(uploadFileDto);
+        } catch (Exception e) {
+            log.error("Загрузка не удалась.");
+            e.printStackTrace();
+        }
+        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
+        return url;
+    }
+
+    @PostMapping("/uploadfolder")
+    public String uploadFolderToMinIO(@RequestParam("folder") List<MultipartFile> files, @RequestParam("path") String path) {
+        try {
+            log.info("Пытаемся загрузить на обменник папку в папку " + path);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String userName = authentication.getName();
+            for (MultipartFile file : files) {
+                String fileName = file.getOriginalFilename();
+                UploadFileDto uploadFileDto = UploadFileDto.builder()
+                        .userName(userName)
+                        .fileName(fileName)
+                        .path(path)
+                        .multipartFile(file)
+                        .build();
+                minioService.uploadFile(uploadFileDto);
+            }
         } catch (Exception e) {
             log.error("Загрузка не удалась.");
             e.printStackTrace();
@@ -79,7 +105,7 @@ public class MinioController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName,@RequestParam("path") String path) {
+    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName,@RequestParam String path) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()

@@ -124,7 +124,7 @@
         <!--            <input type="hidden" name="fileName" th:value="${file}"/>-->
         <!--            <button type="submit" class="btn btn-primary">Скачать</button>-->
         <!--        </form>-->
-        <a th:href="@{/download(fileName=${file})}" th:download="${file}">Скачать файл</a>
+        <a th:href="@{/download(fileName=${file},path=${folder})}" th:download="${file}">Скачать файл</a>
         <!-- Всплывающее окно -->
         <div class="modal">
             <div class="modal-content">
@@ -174,17 +174,33 @@
         </div>
     </form>
     <br>
-    <span>Загрузить файл.</span>
-    <form th:action="@{/upload}" method="post" enctype="multipart/form-data">
-        <div>
-            <label for="file">Выберите файл для загрузки</label>
-            <input type="file" id="file" name="file"/>
-            <input type="hidden" name="path" th:value="${folder}"/>
-        </div>
-        <div>
-            <button class="btn btn-primary">Загрузить</button>
-        </div>
-    </form>
+    <div>
+        <span>Загрузить файл.</span>
+        <form th:action="@{/uploadfile}" method="post" enctype="multipart/form-data">
+            <div>
+                <label for="file">Выберите файл для загрузки</label>
+                <input type="file" id="file" name="file"/>
+                <input type="hidden" name="path" th:value="${folder}"/>
+            </div>
+            <div>
+                <button class="btn btn-primary">Загрузить</button>
+            </div>
+        </form>
+    </div>
+    <br>
+    <div>
+        <span>Загрузить папку.</span>
+        <form th:action="@{/uploadfolder}" method="post" enctype="multipart/form-data">
+            <div>
+                <label for="file">Выберите папку для загрузки</label>
+                <input type="file"  webkitdirectory multiple id="directory" name="folder"/>
+                <input type="hidden" name="path" th:value="${folder}"/>
+            </div>
+            <div>
+                <button class="btn btn-primary">Загрузить</button>
+            </div>
+        </form>
+    </div>
 </div>
 </body>
 </html>

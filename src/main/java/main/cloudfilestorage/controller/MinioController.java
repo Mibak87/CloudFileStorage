@@ -130,4 +130,18 @@ public class MinioController {
         String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
         return url;
     }
+
+    @PostMapping("/deletefolder")
+    public String deleteFolderFromMinio(@RequestParam String folderToDelete,@RequestParam("path") String path) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+        FileDto fileDto = FileDto.builder()
+                .userName(userName)
+                .fileName(folderToDelete)
+                .path(path)
+                .build();
+        minioService.deleteFolder(fileDto);
+        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
+        return url;
+    }
 }

@@ -37,7 +37,7 @@ public class MinioRepository {
         }
     }
 
-    public List<String> getAllFilesByUser(String userDirectory) {
+    public List<String> getFilesByDirectory(String userDirectory) {
         List<String> files = new ArrayList<>();
         try {
             Iterable<Result<Item>> results = minioClient.listObjects(
@@ -48,7 +48,7 @@ public class MinioRepository {
             );
             for (Result<Item> result : results) {
                 Item item = result.get();
-                files.add(item.objectName());//.replace(userDirectory,""));
+                files.add(item.objectName());
             }
         } catch (Exception e) {
             e.printStackTrace();

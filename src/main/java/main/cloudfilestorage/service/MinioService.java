@@ -12,7 +12,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -70,7 +69,7 @@ public class MinioService {
         }
         userDirectory = userDirectory + path;
         log.info("Получаем все файлы пользователя " + userName + " из папки " + userDirectory);
-        List<String> allUserFiles = minioRepository.getAllFilesByUser(userDirectory);
+        List<String> allUserFiles = minioRepository.getFilesByDirectory(userDirectory);
         log.info("Вот они: " + allUserFiles);
         List<String> userFiles = new ArrayList<>();
         List<String> userDirectories = new ArrayList<>();
@@ -112,6 +111,17 @@ public class MinioService {
         minioRepository.createFolder(getFileFullName(userName,path,folderName));
     }
 
+    public void deleteFolder(FileDto fileDto) {
+        log.info("Удаляем папку " + fileDto.getFileName() + " у пользователя " + fileDto.getUserName() + " .");
+        List<String> filesToDelete = getAllFilesByDirectory(getFileFullName(fileDto.getUserName()
+                                            ,fileDto.getPath()
+                                            ,fileDto.getFileName()));
+        log.info("В этой папке находятся файлы: " + filesToDelete);
+        for (String file : filesToDelete) {
+            minioRepository.deleteFile(file);
+        }
+    }
+
     private String getUserDirectory(String userName) {
         Long userId = userRepository.findByUsername(userName).getId();
         return "user-" + userId + "-files/";
@@ -122,5 +132,17 @@ public class MinioService {
             return getUserDirectory(userName) + fileName;
         }
         return getUserDirectory(userName) + path + fileName;
+    }
+
+    public List<String> getAllFilesByDirectory(String directory) {
+        List<String> files = minioRepository.getFilesByDirectory(directory);
+        List<String> allFiles = new ArrayList<>(files);
+        for (String file : files) {
+            if (file.endsWith("/") && !file.equals(directory)) {
+                List<String> filesInInternalDirectory = getAllFilesByDirectory(file);
+                allFiles.addAll(filesInInternalDirectory);
+            }
+        }
+        return allFiles;
     }
 }

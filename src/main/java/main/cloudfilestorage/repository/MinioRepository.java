@@ -3,8 +3,6 @@ package main.cloudfilestorage.repository;
 import io.minio.*;
 import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -86,19 +84,18 @@ public class MinioRepository {
         deleteFile(fileName);
     }
 
-    public Resource downloadFile(String fileName, String fileShortName) {
+    public InputStream downloadFile(String fileName) {
         try {
-            InputStream inputStream = minioClient.getObject(
+            return minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket("user-files")
-                        .object(fileName)
-                        .build());
-        return new InputStreamResource(inputStream);
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
+                            .object(fileName)
+                            .build());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
-}
+    }
 
     public void createFolder(String folderName) {
         try {

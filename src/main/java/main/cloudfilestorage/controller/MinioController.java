@@ -1,5 +1,6 @@
 package main.cloudfilestorage.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
@@ -117,6 +118,21 @@ public class MinioController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                 .body(file);
+    }
+
+    @GetMapping("/downloadfolder")
+    public void downloadFolder(HttpServletResponse response, @RequestParam String fileName, @RequestParam String path) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
+        FileDto fileDto = FileDto.builder()
+                .userName(userName)
+                .fileName(fileName)
+                .path(path)
+                .build();
+        String outputName = fileName.replace("/","") + ".zip";
+        response.setContentType("application/zip");
+        response.setHeader("Content-Disposition", "attachment; filename=" + outputName);
+        minioService.downloadFolder(response,fileDto);
     }
 
     @PostMapping("/createfolder")

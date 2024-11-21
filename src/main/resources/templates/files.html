@@ -71,7 +71,7 @@
             <button type="submit" class="btn btn-primary">Удалить</button>
         </form>
         <button class="openModal btn btn-primary">Переименовать</button>
-        <a th:href="@{/download(fileName=${directory})}" th:download="${directory}">Скачать папку</a>
+        <a th:href="@{/downloadfolder(fileName=${directory},path=${folder})}" th:download="${directory}">Скачать папку</a>
         <!-- Всплывающее окно -->
         <div class="modal">
             <div class="modal-content">

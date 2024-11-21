@@ -1,5 +1,6 @@
 package main.cloudfilestorage.service;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
@@ -8,10 +9,15 @@ import main.cloudfilestorage.dto.ViewFilesDto;
 import main.cloudfilestorage.repository.MinioRepository;
 import main.cloudfilestorage.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 
+import java.io.InputStream;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 
 @Slf4j
@@ -53,12 +59,33 @@ public class MinioService {
                         ,renameFileDto.getNewFileName()));
     }
 
+    public void downloadFolder(HttpServletResponse response,FileDto fileDto) {
+        log.info("Скачиваем папку " + fileDto.getFileName() + " у пользователя " + fileDto.getUserName() + " .");
+        List<String> filesToDownload = getAllFilesByDirectory(getFileFullName(fileDto.getUserName()
+                ,fileDto.getPath()
+                ,fileDto.getFileName()));
+        log.info("В этой папке находятся файлы: " + filesToDownload);
+        String userDirectory = getUserDirectory(fileDto.getUserName());
+        try (ZipOutputStream zipOut = new ZipOutputStream(response.getOutputStream())) {
+            for (String file : filesToDownload) {
+                if (!file.endsWith("/")) {
+                    ZipEntry zipEntry = new ZipEntry(file.replace(userDirectory,""));
+                    zipOut.putNextEntry(zipEntry);
+                    InputStream is = minioRepository.downloadFile(file);
+                    StreamUtils.copy(is, zipOut);
+                    zipOut.closeEntry();
+                }
+            }
+        } catch (Exception e) {
+            log.error("При архивировании папки произошла ошибка.");
+        }
+    }
+
     public Resource downloadFile(FileDto fileDto) {
         log.info("Скачивание файла " + fileDto.getFileName());
-        return minioRepository.downloadFile(getFileFullName(fileDto.getUserName()
+        return new InputStreamResource(minioRepository.downloadFile(getFileFullName(fileDto.getUserName()
                         ,fileDto.getPath()
-                        ,fileDto.getFileName())
-                        ,fileDto.getFileName());
+                        ,fileDto.getFileName())));
     }
 
     public ViewFilesDto getUserFiles(String userName, String path) {
@@ -86,7 +113,7 @@ public class MinioService {
                 linkMap.put(singlePath + "/","/");
                 continue;
             }
-            linkMap.put(singlePath + "/", linkPath.append(singlePath + "/").toString());
+            linkMap.put(singlePath + "/", linkPath.append(singlePath).append("/").toString());
         }
         viewFilesDto.setPathList(pathList);
         viewFilesDto.setPath(path);

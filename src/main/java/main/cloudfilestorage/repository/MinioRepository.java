@@ -31,7 +31,7 @@ public class MinioRepository {
                     .build());
             log.info("Файл " + fileName + " успешно загружен.");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Не удалось загрузить файл: " + fileName);
         }
     }
 
@@ -49,7 +49,7 @@ public class MinioRepository {
                 files.add(item.objectName());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Не удалось получить файлы из папки: " + userDirectory);
         }
         return files;
     }
@@ -61,8 +61,9 @@ public class MinioRepository {
                             .bucket("user-files")
                             .object(fileName)
                             .build());
+            log.info("Файл <" + fileName + "> удален.");
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Не удалось удалить файл: " + fileName);
         }
     }
 
@@ -78,10 +79,10 @@ public class MinioRepository {
                                             .object(fileName)
                                             .build())
                             .build());
+            deleteFile(fileName);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Не удалось переименовать файл: " + fileName);
         }
-        deleteFile(fileName);
     }
 
     public InputStream downloadFile(String fileName) {
@@ -92,7 +93,7 @@ public class MinioRepository {
                             .object(fileName)
                             .build());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Не удалось скачать файл: " + fileName);
         }
         return null;
     }
@@ -108,7 +109,7 @@ public class MinioRepository {
             );
             log.info("Создали папку с полным названием: " + folderName);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Не удалось создать папку: " + folderName);
         }
     }
 }

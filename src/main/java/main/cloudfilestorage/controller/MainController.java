@@ -13,7 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -66,10 +66,12 @@ public class MainController {
     }
 
     @GetMapping("/search")
-    public String search(Model model) {
+    public String search(@RequestParam String query, Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         model.addAttribute("username", username);
+        Map<String,String> foundFiles = minioService.getFoundFiles(username,query);
+        model.addAttribute("foundFiles",foundFiles);
         return "search";
     }
 }

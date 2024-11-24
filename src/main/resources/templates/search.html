@@ -25,6 +25,9 @@
         </div>
     </form>
     <span>Здесь должны быть найденные файлы и папки.</span>
+    <div th:each="file:${foundFiles.keySet()}">
+        <a th:href="${foundFiles.get(file)}" th:text="${file}"></a>
+    </div>
 </div>
 </body>
 </html>

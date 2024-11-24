@@ -16,6 +16,7 @@ import org.springframework.util.StreamUtils;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -61,7 +62,7 @@ public class MinioService {
 
     public void downloadFolder(HttpServletResponse response,FileDto fileDto) {
         log.info("Скачиваем папку " + fileDto.getFileName() + " у пользователя " + fileDto.getUserName() + " .");
-        List<String> filesToDownload = getAllFilesByDirectory(getFileFullName(fileDto.getUserName()
+        Set<String> filesToDownload = getAllFilesByDirectory(getFileFullName(fileDto.getUserName()
                 ,fileDto.getPath()
                 ,fileDto.getFileName()));
         log.info("В этой папке находятся файлы: " + filesToDownload);
@@ -140,13 +141,32 @@ public class MinioService {
 
     public void deleteFolder(FileDto fileDto) {
         log.info("Удаляем папку " + fileDto.getFileName() + " у пользователя " + fileDto.getUserName() + " .");
-        List<String> filesToDelete = getAllFilesByDirectory(getFileFullName(fileDto.getUserName()
+        Set<String> filesToDelete = getAllFilesByDirectory(getFileFullName(fileDto.getUserName()
                                             ,fileDto.getPath()
                                             ,fileDto.getFileName()));
         log.info("В этой папке находятся файлы: " + filesToDelete);
         for (String file : filesToDelete) {
             minioRepository.deleteFile(file);
         }
+    }
+
+    public Map<String,String> getFoundFiles(String userName, String query) {
+        String userDirectory = getUserDirectory(userName);
+        Set<String> allUserFiles = getAllFilesByDirectory(userDirectory);
+        Map<String,String> foundFiles = new HashMap<>();
+        for (String file : allUserFiles) {
+            if (file.endsWith("/" + query + "/")
+                    || file.contains("/" + query + ".")
+                    || file.contains("/" + query)) {
+                String regex = query.contains(".")
+                        ? Pattern.quote(query) : "\\b" + Pattern.quote(query) + "\\.[a-zA-Z0-9_-]+\\b";
+                String fileName = file.replace(userDirectory,"");
+                String filePath = fileName.replaceAll(regex,"");
+                foundFiles.put(fileName,filePath.isEmpty() ? "/" : "/?path=" + filePath);
+            }
+        }
+        log.info("При поиске файлов и папок с именем <" + query + "> найдены: " + foundFiles);
+        return foundFiles;
     }
 
     private String getUserDirectory(String userName) {
@@ -161,15 +181,16 @@ public class MinioService {
         return getUserDirectory(userName) + path + fileName;
     }
 
-    public List<String> getAllFilesByDirectory(String directory) {
+    public Set<String> getAllFilesByDirectory(String directory) {
         List<String> files = minioRepository.getFilesByDirectory(directory);
-        List<String> allFiles = new ArrayList<>(files);
+        Set<String> allFiles = new HashSet<>(files);
         for (String file : files) {
             if (file.endsWith("/") && !file.equals(directory)) {
-                List<String> filesInInternalDirectory = getAllFilesByDirectory(file);
+                Set<String> filesInInternalDirectory = getAllFilesByDirectory(file);
                 allFiles.addAll(filesInInternalDirectory);
             }
         }
+        //log.info("В папке с именем <" + directory + "> найдены: " + allFiles);
         return allFiles;
     }
 }

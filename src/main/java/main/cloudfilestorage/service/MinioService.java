@@ -170,7 +170,7 @@ public class MinioService {
     }
 
     private String getUserDirectory(String userName) {
-        Long userId = userRepository.findByUsername(userName).getId();
+        Long userId = userRepository.findByUsername(userName).orElseThrow().getId();
         return "user-" + userId + "-files/";
     }
 

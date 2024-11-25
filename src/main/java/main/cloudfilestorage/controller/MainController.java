@@ -45,9 +45,10 @@ public class MainController {
     @PostMapping("/registration")
     public String processRegister(@ModelAttribute("userRegister") RegisterDto registerDto) {
         //if (registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
-            log.info("Регистрация пользователя " + "<" + registerDto.getUserName() + ">");
+            log.info("Регистрация пользователя <" + registerDto.getUserName() + ">");
             User user = new User(registerDto.getUserName(),registerDto.getPassword());
             userService.register(user);
+            log.info("Пользователь <" + registerDto.getUserName() + "> зарегистрирован.");
             return "redirect:/login";
        //}
         //return "redirect:/registration";

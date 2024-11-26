@@ -44,7 +44,7 @@ public class MainController {
     }
 
     @PostMapping("/registration")
-    public String processRegister(@ModelAttribute("userRegister") RegisterDto registerDto) {
+    public String processRegister(@ModelAttribute("userRegister") RegisterDto registerDto, Model model) {
         if (registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
             log.info("Регистрация пользователя <" + registerDto.getUserName() + ">");
             User user = new User(registerDto.getUserName(),registerDto.getPassword());
@@ -53,12 +53,14 @@ public class MainController {
                 log.info("Пользователь <" + registerDto.getUserName() + "> зарегистрирован.");
             } catch (UniqueUserNameException e) {
                 log.error(e.toString());
-                return "redirect:/registration";
+                model.addAttribute("userNameError", "Пользователь с таким именем уже существует!");
+                return "registration";
             }
             return "redirect:/login";
        }
         log.error("Пароли не совпадают!");
-        return "redirect:/registration";
+        model.addAttribute("confirmPasswordError", "Пароли не совпадают!");
+        return "registration";
     }
 
     @GetMapping("/")

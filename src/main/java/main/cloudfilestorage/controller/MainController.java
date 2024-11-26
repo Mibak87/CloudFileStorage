@@ -3,6 +3,7 @@ package main.cloudfilestorage.controller;
 import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.RegisterDto;
 import main.cloudfilestorage.dto.ViewFilesDto;
+import main.cloudfilestorage.exception.UniqueUserNameException;
 import main.cloudfilestorage.model.User;
 import main.cloudfilestorage.service.MinioService;
 import main.cloudfilestorage.service.UserService;
@@ -44,14 +45,20 @@ public class MainController {
 
     @PostMapping("/registration")
     public String processRegister(@ModelAttribute("userRegister") RegisterDto registerDto) {
-        //if (registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
+        if (registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
             log.info("Регистрация пользователя <" + registerDto.getUserName() + ">");
             User user = new User(registerDto.getUserName(),registerDto.getPassword());
-            userService.register(user);
-            log.info("Пользователь <" + registerDto.getUserName() + "> зарегистрирован.");
+            try {
+                userService.register(user);
+                log.info("Пользователь <" + registerDto.getUserName() + "> зарегистрирован.");
+            } catch (UniqueUserNameException e) {
+                log.error(e.toString());
+                return "redirect:/registration";
+            }
             return "redirect:/login";
-       //}
-        //return "redirect:/registration";
+       }
+        log.error("Пароли не совпадают!");
+        return "redirect:/registration";
     }
 
     @GetMapping("/")

@@ -1,9 +1,12 @@
 package main.cloudfilestorage.service;
 
+import main.cloudfilestorage.exception.UniqueUserNameException;
 import main.cloudfilestorage.model.User;
 import main.cloudfilestorage.repository.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class UserService {
@@ -16,8 +19,12 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void register(User user) {
+    public void register(User user) throws UniqueUserNameException {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(user);
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new UniqueUserNameException("Пользователь с таким именем уже существует!");
+        }
     }
 }

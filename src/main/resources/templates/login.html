@@ -18,7 +18,9 @@
   <div class="row">
     <div class="col-2">
       <h3>Авторизация</h3>
-      <label style="color: red" th:text="${error}"></label>
+      <div th:if="${param.error}">
+        <label style="color: red" th:text="${error}"></label>
+      </div>
       <form th:action="@{/login}" method="post">
         <div class="mb-3">
           <label for="login" class="form-label">Логин</label>

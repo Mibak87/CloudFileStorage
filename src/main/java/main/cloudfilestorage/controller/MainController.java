@@ -32,6 +32,7 @@ public class MainController {
     @RequestMapping("/login")
     public String login(Model model) {
         model.addAttribute("user", new User());
+        model.addAttribute("error", "Неправильные логин или пароль!");
         log.info("Зашли в авторизацию.");
         return "login";
     }
@@ -45,6 +46,12 @@ public class MainController {
 
     @PostMapping("/registration")
     public String processRegister(@ModelAttribute("userRegister") RegisterDto registerDto, Model model) {
+        if (registerDto.getUserName().isEmpty()
+                || registerDto.getPassword().isEmpty()
+                || registerDto.getConfirmPassword().isEmpty()) {
+            model.addAttribute("error", "Поля не должны быть пустыми!");
+            return "registration";
+        }
         if (registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
             log.info("Регистрация пользователя <" + registerDto.getUserName() + ">");
             User user = new User(registerDto.getUserName(),registerDto.getPassword());

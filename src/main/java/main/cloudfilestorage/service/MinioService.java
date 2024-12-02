@@ -6,6 +6,7 @@ import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
 import main.cloudfilestorage.dto.ViewFilesDto;
+import main.cloudfilestorage.exception.CreateFolderException;
 import main.cloudfilestorage.exception.DeleteFileException;
 import main.cloudfilestorage.exception.RenameFileException;
 import main.cloudfilestorage.repository.MinioRepository;
@@ -137,7 +138,7 @@ public class MinioService {
         return viewFilesDto;
     }
 
-    public void createFolder(String folderName,String path,String userName) {
+    public void createFolder(String folderName,String path,String userName) throws CreateFolderException {
         minioRepository.createFolder(getFileFullName(userName,path,folderName));
     }
 

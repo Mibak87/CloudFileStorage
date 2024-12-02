@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
+import main.cloudfilestorage.exception.CreateFolderException;
 import main.cloudfilestorage.exception.DeleteFileException;
 import main.cloudfilestorage.exception.RenameFileException;
 import main.cloudfilestorage.service.MinioService;
@@ -149,14 +150,21 @@ public class MinioController {
     }
 
     @PostMapping("/createfolder")
-    public String createFolder(@RequestParam String folderName,@RequestParam("path") String path) {
+    public String createFolder(@RequestParam String folderName,@RequestParam("path") String path,
+                               RedirectAttributes redirectAttributes) {
         log.info("Хотим создать папку внутри папки " + path);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
-        if (!folderName.isEmpty()) {
-            minioService.createFolder(folderName,path,userName);
-        }
         String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
+        if (folderName.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Название папки не должно быть пустым!");
+            return url;
+        }
+        try {
+            minioService.createFolder(folderName, path, userName);
+        } catch (CreateFolderException e) {
+            redirectAttributes.addFlashAttribute("error", "При создании папки произошла ошибка!");
+        }
         return url;
     }
 

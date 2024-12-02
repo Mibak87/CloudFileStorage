@@ -3,6 +3,7 @@ package main.cloudfilestorage.repository;
 import io.minio.*;
 import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
+import main.cloudfilestorage.exception.CreateFolderException;
 import main.cloudfilestorage.exception.DeleteFileException;
 import main.cloudfilestorage.exception.RenameFileException;
 import org.springframework.stereotype.Repository;
@@ -102,7 +103,7 @@ public class MinioRepository {
         return null;
     }
 
-    public void createFolder(String folderName) {
+    public void createFolder(String folderName) throws CreateFolderException {
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -114,6 +115,7 @@ public class MinioRepository {
             log.info("Создали папку с полным названием: " + folderName);
         } catch (Exception e) {
             log.error("Не удалось создать папку: " + folderName);
+            throw new CreateFolderException("Не удалось создать папку: " + folderName);
         }
     }
 }

@@ -1,13 +1,13 @@
 package main.cloudfilestorage.service;
 
-import io.minio.errors.MinioException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
 import main.cloudfilestorage.dto.ViewFilesDto;
-import main.cloudfilestorage.exception.FailedDeletionException;
+import main.cloudfilestorage.exception.DeleteFileException;
+import main.cloudfilestorage.exception.RenameFileException;
 import main.cloudfilestorage.repository.MinioRepository;
 import main.cloudfilestorage.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,14 +42,14 @@ public class MinioService {
                 ,uploadFileDto.getMultipartFile());
     }
 
-    public void deleteFile(FileDto fileDto) throws FailedDeletionException {
+    public void deleteFile(FileDto fileDto) throws DeleteFileException {
         log.info("Удаляем файл " + fileDto.getFileName() + " у пользователя " + fileDto.getUserName() + " .");
         minioRepository.deleteFile(getFileFullName(fileDto.getUserName()
                 , fileDto.getPath()
                 , fileDto.getFileName()));
     }
 
-    public void renameFile(RenameFileDto renameFileDto) {
+    public void renameFile(RenameFileDto renameFileDto) throws RenameFileException {
         log.info("Переименование файла "+renameFileDto.getFileName()+" в файл "+renameFileDto.getNewFileName());
         if (renameFileDto.getFileName().endsWith("/")) {
             renameFileDto.setNewFileName(renameFileDto.getNewFileName() + "/");
@@ -141,7 +141,7 @@ public class MinioService {
         minioRepository.createFolder(getFileFullName(userName,path,folderName));
     }
 
-    public void deleteFolder(FileDto fileDto) throws FailedDeletionException {
+    public void deleteFolder(FileDto fileDto) throws DeleteFileException {
         log.info("Удаляем папку " + fileDto.getFileName() + " у пользователя " + fileDto.getUserName() + " .");
         Set<String> filesToDelete = getAllFilesByDirectory(getFileFullName(fileDto.getUserName()
                                             ,fileDto.getPath()

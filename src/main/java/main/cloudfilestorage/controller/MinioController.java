@@ -5,7 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
-import main.cloudfilestorage.exception.FailedDeletionException;
+import main.cloudfilestorage.exception.DeleteFileException;
+import main.cloudfilestorage.exception.RenameFileException;
 import main.cloudfilestorage.service.MinioService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -79,7 +80,8 @@ public class MinioController {
     }
 
     @PostMapping("/delete")
-    public String deleteFileFromMinio(@RequestParam String fileToDelete,@RequestParam("path") String path, RedirectAttributes redirectAttributes) {
+    public String deleteFileFromMinio(@RequestParam String fileToDelete,@RequestParam("path") String path,
+             RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()
@@ -89,7 +91,7 @@ public class MinioController {
                 .build();
         try {
             minioService.deleteFile(fileDto);
-        } catch (FailedDeletionException e) {
+        } catch (DeleteFileException e) {
             redirectAttributes.addFlashAttribute("error", "При удалении файла произошла ошибка!");
         }
         String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
@@ -97,8 +99,8 @@ public class MinioController {
     }
 
     @PostMapping("/rename")
-    public String renameFile(@RequestParam String newFileName, @RequestParam String fileName
-            ,@RequestParam("path") String path) {
+    public String renameFile(@RequestParam String newFileName, @RequestParam String fileName,
+            @RequestParam("path") String path, RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         RenameFileDto renameFileDto = RenameFileDto.builder()
@@ -107,7 +109,11 @@ public class MinioController {
                 .path(path)
                 .newFileName(newFileName)
                 .build();
-        minioService.renameFile(renameFileDto);
+        try {
+            minioService.renameFile(renameFileDto);
+        } catch (RenameFileException e) {
+            redirectAttributes.addFlashAttribute("error", "При переименовании файла (или папки) произошла ошибка!");
+        }
         String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
         return url;
     }
@@ -165,7 +171,7 @@ public class MinioController {
                 .build();
         try {
             minioService.deleteFolder(fileDto);
-        } catch (FailedDeletionException e) {
+        } catch (DeleteFileException e) {
             redirectAttributes.addFlashAttribute("error", "При удалении папки произошла ошибка!");
         }
         String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);

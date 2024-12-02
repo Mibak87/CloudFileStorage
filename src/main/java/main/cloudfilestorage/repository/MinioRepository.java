@@ -1,10 +1,10 @@
 package main.cloudfilestorage.repository;
 
 import io.minio.*;
-import io.minio.errors.MinioException;
 import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
-import main.cloudfilestorage.exception.FailedDeletionException;
+import main.cloudfilestorage.exception.DeleteFileException;
+import main.cloudfilestorage.exception.RenameFileException;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,7 +56,7 @@ public class MinioRepository {
         return files;
     }
 
-    public void deleteFile(String fileName) throws FailedDeletionException {
+    public void deleteFile(String fileName) throws DeleteFileException {
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
@@ -66,11 +66,11 @@ public class MinioRepository {
             log.info("Файл <" + fileName + "> удален.");
         } catch (Exception e) {
             log.error("Не удалось удалить файл: " + fileName);
-            throw new FailedDeletionException("Не удалось удалить файл: " + fileName);
+            throw new DeleteFileException("Не удалось удалить файл: " + fileName);
         }
     }
 
-    public void renameFile(String fileName, String newName) {
+    public void renameFile(String fileName, String newName) throws RenameFileException {
         try {
             minioClient.copyObject(
                     CopyObjectArgs.builder()
@@ -85,6 +85,7 @@ public class MinioRepository {
             deleteFile(fileName);
         } catch (Exception e) {
             log.error("Не удалось переименовать файл: " + fileName);
+            throw new RenameFileException("Не удалось переименовать файл: " + fileName);
         }
     }
 

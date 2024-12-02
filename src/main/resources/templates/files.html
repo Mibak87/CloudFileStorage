@@ -58,6 +58,7 @@
     </form>
     <span>Ваши файлы:</span>
     <br>
+    <label style="color: red" th:text="${error}"></label>
     <div class="rounded-border">
         <div th:each="path:${viewFilesDto.getPathList()}">
             <a th:href="${viewFilesDto.getLinkMap().get(path)}" th:text="${path}"></a>
@@ -185,6 +186,7 @@
             <div>
                 <button class="btn btn-primary">Загрузить</button>
             </div>
+            <label style="color: red" th:text="${errorMaxSizeMessage}"></label>
         </form>
     </div>
     <br>

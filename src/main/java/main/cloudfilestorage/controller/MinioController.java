@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
+import main.cloudfilestorage.exception.FailedDeletionException;
 import main.cloudfilestorage.service.MinioService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +16,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -43,7 +46,7 @@ public class MinioController {
                     .multipartFile(file)
                     .build();
             minioService.uploadFile(uploadFileDto);
-        } catch (Exception e) {
+        } catch (MaxUploadSizeExceededException e) {
             log.error("Загрузка не удалась.");
             e.printStackTrace();
         }
@@ -76,7 +79,7 @@ public class MinioController {
     }
 
     @PostMapping("/delete")
-    public String deleteFileFromMinio(@RequestParam String fileToDelete,@RequestParam("path") String path) {
+    public String deleteFileFromMinio(@RequestParam String fileToDelete,@RequestParam("path") String path, RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()
@@ -84,7 +87,11 @@ public class MinioController {
                 .fileName(fileToDelete)
                 .path(path)
                 .build();
-        minioService.deleteFile(fileDto);
+        try {
+            minioService.deleteFile(fileDto);
+        } catch (FailedDeletionException e) {
+            redirectAttributes.addFlashAttribute("error", "При удалении файла произошла ошибка!");
+        }
         String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
         return url;
     }
@@ -148,7 +155,7 @@ public class MinioController {
     }
 
     @PostMapping("/deletefolder")
-    public String deleteFolderFromMinio(@RequestParam String folderToDelete,@RequestParam("path") String path) {
+    public String deleteFolderFromMinio(@RequestParam String folderToDelete,@RequestParam("path") String path, RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()
@@ -156,7 +163,11 @@ public class MinioController {
                 .fileName(folderToDelete)
                 .path(path)
                 .build();
-        minioService.deleteFolder(fileDto);
+        try {
+            minioService.deleteFolder(fileDto);
+        } catch (FailedDeletionException e) {
+            redirectAttributes.addFlashAttribute("error", "При удалении папки произошла ошибка!");
+        }
         String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
         return url;
     }

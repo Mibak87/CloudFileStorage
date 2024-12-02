@@ -1,8 +1,10 @@
 package main.cloudfilestorage.repository;
 
 import io.minio.*;
+import io.minio.errors.MinioException;
 import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
+import main.cloudfilestorage.exception.FailedDeletionException;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,7 +56,7 @@ public class MinioRepository {
         return files;
     }
 
-    public void deleteFile(String fileName) {
+    public void deleteFile(String fileName) throws FailedDeletionException {
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
@@ -64,6 +66,7 @@ public class MinioRepository {
             log.info("Файл <" + fileName + "> удален.");
         } catch (Exception e) {
             log.error("Не удалось удалить файл: " + fileName);
+            throw new FailedDeletionException("Не удалось удалить файл: " + fileName);
         }
     }
 

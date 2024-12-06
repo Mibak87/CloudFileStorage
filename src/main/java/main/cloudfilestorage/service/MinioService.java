@@ -8,6 +8,7 @@ import main.cloudfilestorage.dto.UploadFileDto;
 import main.cloudfilestorage.dto.ViewFilesDto;
 import main.cloudfilestorage.exception.CreateFolderException;
 import main.cloudfilestorage.exception.DeleteFileException;
+import main.cloudfilestorage.exception.DownloadFileException;
 import main.cloudfilestorage.exception.RenameFileException;
 import main.cloudfilestorage.repository.MinioRepository;
 import main.cloudfilestorage.repository.UserRepository;
@@ -85,7 +86,7 @@ public class MinioService {
         }
     }
 
-    public Resource downloadFile(FileDto fileDto) {
+    public Resource downloadFile(FileDto fileDto) throws DownloadFileException {
         log.info("Скачивание файла " + fileDto.getFileName());
         return new InputStreamResource(minioRepository.downloadFile(getFileFullName(fileDto.getUserName()
                         ,fileDto.getPath()

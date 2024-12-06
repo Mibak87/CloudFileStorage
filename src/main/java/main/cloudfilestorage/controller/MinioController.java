@@ -7,6 +7,7 @@ import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
 import main.cloudfilestorage.exception.CreateFolderException;
 import main.cloudfilestorage.exception.DeleteFileException;
+import main.cloudfilestorage.exception.DownloadFileException;
 import main.cloudfilestorage.exception.RenameFileException;
 import main.cloudfilestorage.service.MinioService;
 import org.springframework.core.io.Resource;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -48,12 +48,11 @@ public class MinioController {
                     .multipartFile(file)
                     .build();
             minioService.uploadFile(uploadFileDto);
-        } catch (MaxUploadSizeExceededException e) {
+        } catch (Exception e) {
             log.error("Загрузка не удалась.");
             e.printStackTrace();
         }
-        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
-        return url;
+        return getURL(path);
     }
 
     @PostMapping("/uploadfolder")
@@ -76,8 +75,7 @@ public class MinioController {
             log.error("Загрузка не удалась.");
             e.printStackTrace();
         }
-        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
-        return url;
+        return getURL(path);
     }
 
     @PostMapping("/delete")
@@ -95,8 +93,7 @@ public class MinioController {
         } catch (DeleteFileException e) {
             redirectAttributes.addFlashAttribute("error", "При удалении файла произошла ошибка!");
         }
-        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
-        return url;
+        return getURL(path);
     }
 
     @PostMapping("/rename")
@@ -115,12 +112,12 @@ public class MinioController {
         } catch (RenameFileException e) {
             redirectAttributes.addFlashAttribute("error", "При переименовании файла (или папки) произошла ошибка!");
         }
-        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
-        return url;
+        return getURL(path);
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName,@RequestParam String path) {
+    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName,@RequestParam String path,
+                                                 RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()
@@ -128,10 +125,14 @@ public class MinioController {
                 .fileName(fileName)
                 .path(path)
                 .build();
-        Resource file = minioService.downloadFile(fileDto);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
-                .body(file);
+        try {
+            Resource file = minioService.downloadFile(fileDto);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                    .body(file);
+        } catch (DownloadFileException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/downloadfolder")
@@ -155,17 +156,16 @@ public class MinioController {
         log.info("Хотим создать папку внутри папки " + path);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
-        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
         if (folderName.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Название папки не должно быть пустым!");
-            return url;
+            return getURL(path);
         }
         try {
             minioService.createFolder(folderName, path, userName);
         } catch (CreateFolderException e) {
             redirectAttributes.addFlashAttribute("error", "При создании папки произошла ошибка!");
         }
-        return url;
+        return getURL(path);
     }
 
     @PostMapping("/deletefolder")
@@ -182,7 +182,10 @@ public class MinioController {
         } catch (DeleteFileException e) {
             redirectAttributes.addFlashAttribute("error", "При удалении папки произошла ошибка!");
         }
-        String url = (path == "") ? "redirect:/" : ("redirect:/?path=" + path);
-        return url;
+        return getURL(path);
+    }
+
+    private String getURL(String path) {
+        return (path.isEmpty()) ? "redirect:/" : ("redirect:/?path=" + path);
     }
 }

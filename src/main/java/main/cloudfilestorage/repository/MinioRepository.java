@@ -5,6 +5,7 @@ import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.exception.CreateFolderException;
 import main.cloudfilestorage.exception.DeleteFileException;
+import main.cloudfilestorage.exception.DownloadFileException;
 import main.cloudfilestorage.exception.RenameFileException;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,7 +91,7 @@ public class MinioRepository {
         }
     }
 
-    public InputStream downloadFile(String fileName) {
+    public InputStream downloadFile(String fileName) throws DownloadFileException {
         try {
             return minioClient.getObject(
                     GetObjectArgs.builder()
@@ -99,8 +100,8 @@ public class MinioRepository {
                             .build());
         } catch (Exception e) {
             log.error("Не удалось скачать файл: " + fileName);
+            throw new DownloadFileException("Не удалось скачать файл: " + fileName);
         }
-        return null;
     }
 
     public void createFolder(String folderName) throws CreateFolderException {

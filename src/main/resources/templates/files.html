@@ -141,29 +141,7 @@
             </div>
         </div>
 
-        <script>
-            document.querySelectorAll('.openModal').forEach((btn, index) => {
-                const modal = document.querySelectorAll('.modal')[index];
-                const span = modal.querySelector('.close');
 
-                // Открытие модального окна при нажатии на кнопку
-                btn.onclick = function() {
-                    modal.style.display = "block";
-                }
-
-                // Закрытие модального окна при нажатии на (x)
-                span.onclick = function() {
-                    modal.style.display = "none";
-                }
-
-                // Закрытие модального окна при клике вне его
-                window.onclick = function(event) {
-                    if (event.target === modal) {
-                        modal.style.display = "none";
-                    }
-                }
-            });
-        </script>
         <br>
     </div>
     <br>
@@ -186,7 +164,7 @@
             <div>
                 <button class="btn btn-primary">Загрузить</button>
             </div>
-            <label style="color: red" th:text="${errorMaxSizeMessage}"></label>
+            <p id="error-message" style="color: red; display: none;">Допустимый размер файла не должен превышать 10 Мб.</p>
         </form>
     </div>
     <br>
@@ -204,5 +182,41 @@
         </form>
     </div>
 </div>
+<script>
+    document.querySelectorAll('.openModal').forEach((btn, index) => {
+        const modal = document.querySelectorAll('.modal')[index];
+        const span = modal.querySelector('.close');
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+        span.onclick = function() {
+            modal.style.display = "none";
+        }
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+    });
+</script>
+<script>
+    document.getElementById('file').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const maxSize = 10 * 1024 * 1024;
+        const errorMessage = document.getElementById('error-message');
+
+        if (file) {
+            if (file.size > maxSize) {
+                errorMessage.style.display = 'block';
+                event.target.value = '';
+            } else {
+                errorMessage.style.display = 'none';
+            }
+        } else {
+            errorMessage.style.display = 'none';
+        }
+    });
+
+</script>
 </body>
 </html>

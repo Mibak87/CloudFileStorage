@@ -135,7 +135,8 @@ public class MinioController {
     }
 
     @GetMapping("/downloadfolder")
-    public void downloadFolder(HttpServletResponse response, @RequestParam String fileName, @RequestParam String path) {
+    public String downloadFolder(HttpServletResponse response, @RequestParam String fileName, @RequestParam String path,
+                                 RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()
@@ -143,16 +144,22 @@ public class MinioController {
                 .fileName(fileName)
                 .path(path)
                 .build();
-        String outputName = fileName.replace("/","") + ".zip";
-        response.setContentType("application/zip");
-        response.setHeader("Content-Disposition", "attachment; filename=" + outputName);
-        minioService.downloadFolder(response,fileDto);
+        try {
+            String outputName = fileName.replace("/", "") + ".zip";
+            response.setContentType("application/zip");
+            response.setHeader("Content-Disposition", "attachment; filename=" + outputName);
+            minioService.downloadFolder(response, fileDto);
+            return getURL(path);
+        } catch (DownloadFileException e) {
+            redirectAttributes.addFlashAttribute("error", "Не удалось скачать папку!");
+            return getURL(path);
+        }
     }
 
     @PostMapping("/createfolder")
     public String createFolder(@RequestParam String folderName,@RequestParam("path") String path,
                                RedirectAttributes redirectAttributes) {
-        log.info("Хотим создать папку внутри папки " + path);
+        log.info("Хотим создать папку " + folderName + " внутри папки " + path);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         if (folderName.isEmpty()) {
@@ -168,7 +175,8 @@ public class MinioController {
     }
 
     @PostMapping("/deletefolder")
-    public String deleteFolderFromMinio(@RequestParam String folderToDelete,@RequestParam("path") String path, RedirectAttributes redirectAttributes) {
+    public String deleteFolderFromMinio(@RequestParam String folderToDelete,@RequestParam("path") String path,
+                                        RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()

@@ -6,10 +6,7 @@ import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
 import main.cloudfilestorage.dto.ViewFilesDto;
-import main.cloudfilestorage.exception.CreateFolderException;
-import main.cloudfilestorage.exception.DeleteFileException;
-import main.cloudfilestorage.exception.DownloadFileException;
-import main.cloudfilestorage.exception.RenameFileException;
+import main.cloudfilestorage.exception.*;
 import main.cloudfilestorage.repository.MinioRepository;
 import main.cloudfilestorage.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +61,7 @@ public class MinioService {
                         ,renameFileDto.getNewFileName()));
     }
 
-    public void downloadFolder(HttpServletResponse response,FileDto fileDto) {
+    public void downloadFolder(HttpServletResponse response,FileDto fileDto) throws DownloadFileException {
         log.info("Скачиваем папку " + fileDto.getFileName() + " у пользователя " + fileDto.getUserName() + " .");
         Set<String> filesToDownload = getAllFilesByDirectory(getFileFullName(fileDto.getUserName()
                 ,fileDto.getPath()
@@ -83,6 +80,7 @@ public class MinioService {
             }
         } catch (Exception e) {
             log.error("При архивировании папки произошла ошибка.");
+            throw new DownloadFileException("При архивировании и скачивании папки произошла ошибка.");
         }
     }
 

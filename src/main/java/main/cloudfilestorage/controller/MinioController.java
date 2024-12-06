@@ -116,8 +116,7 @@ public class MinioController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName,@RequestParam String path,
-                                                 RedirectAttributes redirectAttributes) {
+    public ResponseEntity<Resource> downloadFile(@RequestParam String fileName,@RequestParam String path) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()

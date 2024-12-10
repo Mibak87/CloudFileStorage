@@ -54,7 +54,7 @@ public class RegistrationTest {
     }
 
     @Test
-    void registerNewUser() {
+    void registerNewUser_addNewUserToBD() {
         User newUser = new User("aaa","123");
         try {
             userService.register(newUser);
@@ -63,5 +63,19 @@ public class RegistrationTest {
         }
        assertEquals("aaa",userRepository.findByUsername("aaa").get().getUsername());
 
+    }
+
+    @Test
+    void registerNonUniqueUser_UniqueUserNameException() {
+        User newUser = new User("aaa","123");
+        try {
+            userService.register(newUser);
+        } catch (UniqueUserNameException e) {
+
+        }
+        User nonUniqueUser = new User("aaa","234");
+        Assertions.assertThrows(UniqueUserNameException.class, () -> {
+            userService.register(nonUniqueUser);
+        });
     }
 }

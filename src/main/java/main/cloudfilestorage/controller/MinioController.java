@@ -34,7 +34,7 @@ public class MinioController {
         this.minioService = minioService;
     }
 
-    @PostMapping("/uploadfile")
+    @PostMapping("/upload/file")
     public String uploadFileToMinIO(@RequestParam("file") MultipartFile file,@RequestParam("path") String path) {
         try {
             log.info("Пытаемся загрузить на обменник файл в папку " + path);
@@ -55,7 +55,7 @@ public class MinioController {
         return getURL(path);
     }
 
-    @PostMapping("/uploadfolder")
+    @PostMapping("/upload/folder")
     public String uploadFolderToMinIO(@RequestParam("folder") List<MultipartFile> files, @RequestParam("path") String path) {
         try {
             log.info("Пытаемся загрузить на обменник папку в папку " + path);
@@ -78,7 +78,7 @@ public class MinioController {
         return getURL(path);
     }
 
-    @PostMapping("/delete")
+    @PostMapping("/delete/file")
     public String deleteFileFromMinio(@RequestParam String fileToDelete,@RequestParam("path") String path,
              RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -115,7 +115,7 @@ public class MinioController {
         return getURL(path);
     }
 
-    @GetMapping("/download")
+    @GetMapping("/download/file")
     public ResponseEntity<Resource> downloadFile(@RequestParam String fileName,@RequestParam String path) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
@@ -134,7 +134,7 @@ public class MinioController {
         }
     }
 
-    @GetMapping("/downloadfolder")
+    @GetMapping("/download/folder")
     public String downloadFolder(HttpServletResponse response, @RequestParam String fileName, @RequestParam String path,
                                  RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -156,7 +156,7 @@ public class MinioController {
         }
     }
 
-    @PostMapping("/createfolder")
+    @PostMapping("/create/folder")
     public String createFolder(@RequestParam String folderName,@RequestParam("path") String path,
                                RedirectAttributes redirectAttributes) {
         log.info("Хотим создать папку " + folderName + " внутри папки " + path);
@@ -174,7 +174,7 @@ public class MinioController {
         return getURL(path);
     }
 
-    @PostMapping("/deletefolder")
+    @PostMapping("/delete/folder")
     public String deleteFolderFromMinio(@RequestParam String folderToDelete,@RequestParam("path") String path,
                                         RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

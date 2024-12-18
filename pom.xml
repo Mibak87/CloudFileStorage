@@ -10,7 +10,7 @@
     </parent>
     <groupId>main</groupId>
     <artifactId>CloudFileStorage</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1</version>
     <name>CloudFileStorage</name>
     <description>CloudFileStorage</description>
     <url/>

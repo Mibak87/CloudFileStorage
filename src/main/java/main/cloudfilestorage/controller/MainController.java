@@ -3,7 +3,7 @@ package main.cloudfilestorage.controller;
 import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.RegisterDto;
 import main.cloudfilestorage.dto.ViewFilesDto;
-import main.cloudfilestorage.exception.UniqueUserNameException;
+import main.cloudfilestorage.exception.NonUniqueUserNameException;
 import main.cloudfilestorage.model.User;
 import main.cloudfilestorage.service.MinioService;
 import main.cloudfilestorage.service.UserService;
@@ -58,7 +58,7 @@ public class MainController {
             try {
                 userService.register(user);
                 log.info("Пользователь <" + registerDto.getUserName() + "> зарегистрирован.");
-            } catch (UniqueUserNameException e) {
+            } catch (NonUniqueUserNameException e) {
                 log.error(e.toString());
                 model.addAttribute("userNameError", "Пользователь с таким именем уже существует!");
                 return "registration";

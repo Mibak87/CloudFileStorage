@@ -108,7 +108,7 @@ public class MinioController {
             minioService.renameFile(renameFileDto);
         } catch (RenameFileException e) {
             redirectAttributes.addFlashAttribute("error", "При переименовании файла (или папки) произошла ошибка!");
-        } catch (UniqueFileNameException e) {
+        } catch (NonUniqueFileNameException e) {
             redirectAttributes.addFlashAttribute("error", "Файл(папка) с таким именем уже существует в этой папке!");
         }
         return getURL(path);

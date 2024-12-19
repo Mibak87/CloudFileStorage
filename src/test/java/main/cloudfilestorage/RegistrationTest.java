@@ -1,6 +1,6 @@
 package main.cloudfilestorage;
 
-import main.cloudfilestorage.exception.UniqueUserNameException;
+import main.cloudfilestorage.exception.NonUniqueUserNameException;
 import main.cloudfilestorage.model.User;
 import main.cloudfilestorage.repository.UserRepository;
 import main.cloudfilestorage.service.UserService;
@@ -58,7 +58,7 @@ public class RegistrationTest {
         User newUser = new User("aaa","123");
         try {
             userService.register(newUser);
-        } catch (UniqueUserNameException e) {
+        } catch (NonUniqueUserNameException e) {
 
         }
        assertEquals("aaa",userRepository.findByUsername("aaa").get().getUsername());
@@ -70,11 +70,11 @@ public class RegistrationTest {
         User newUser = new User("aaa","123");
         try {
             userService.register(newUser);
-        } catch (UniqueUserNameException e) {
+        } catch (NonUniqueUserNameException e) {
 
         }
         User nonUniqueUser = new User("aaa","234");
-        Assertions.assertThrows(UniqueUserNameException.class, () -> {
+        Assertions.assertThrows(NonUniqueUserNameException.class, () -> {
             userService.register(nonUniqueUser);
         });
     }

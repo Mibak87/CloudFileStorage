@@ -48,7 +48,7 @@ public class MinioService {
                 , fileDto.getFileName()));
     }
 
-    public void renameFile(RenameFileDto renameFileDto) throws RenameFileException,UniqueFileNameException {
+    public void renameFile(RenameFileDto renameFileDto) throws RenameFileException, NonUniqueFileNameException {
         log.info("Переименование файла "+renameFileDto.getFileName()+" в файл "+renameFileDto.getNewFileName());
         if (renameFileDto.getFileName().endsWith("/")) {
             renameFileDto.setNewFileName(renameFileDto.getNewFileName() + "/");
@@ -57,7 +57,7 @@ public class MinioService {
         List<String> filesInFolder = minioRepository.getFilesByDirectory(folderPath);
         for (String file : filesInFolder) {
             if (file.replace(folderPath,"").equals(renameFileDto.getNewFileName())) {
-                throw new UniqueFileNameException("Файл(папка) с таким именем уже существует в этой папке!");
+                throw new NonUniqueFileNameException("Файл(папка) с таким именем уже существует в этой папке!");
             }
         }
         minioRepository.renameFile(getFileFullName(renameFileDto.getUserName()

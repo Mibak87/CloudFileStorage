@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
-import main.cloudfilestorage.exception.CreateFolderException;
-import main.cloudfilestorage.exception.DeleteFileException;
-import main.cloudfilestorage.exception.DownloadFileException;
-import main.cloudfilestorage.exception.RenameFileException;
+import main.cloudfilestorage.exception.*;
 import main.cloudfilestorage.service.MinioService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -111,6 +108,8 @@ public class MinioController {
             minioService.renameFile(renameFileDto);
         } catch (RenameFileException e) {
             redirectAttributes.addFlashAttribute("error", "При переименовании файла (или папки) произошла ошибка!");
+        } catch (UniqueFileNameException e) {
+            redirectAttributes.addFlashAttribute("error", "Файл(папка) с таким именем уже существует в этой папке!");
         }
         return getURL(path);
     }

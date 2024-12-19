@@ -159,20 +159,57 @@ public class MinioService {
         }
     }
 
+//    public Map<String,String> getFoundFiles(String userName, String query) {
+//        String userDirectory = getUserDirectory(userName);
+//        Set<String> allUserFiles = getAllFilesByDirectory(userDirectory);
+//        Map<String,String> foundFiles = new HashMap<>();
+//        for (String file : allUserFiles) {
+//            if (file.endsWith("/" + query + "/")
+//                    || file.contains("/" + query + ".")
+//                    || file.contains("/" + query)) {
+//                String regex = query.contains(".")
+//                        ? Pattern.quote(query) : "\\b" + Pattern.quote(query) + "\\.[a-zA-Z0-9_-]+\\b";
+//                String fileName = file.replace(userDirectory,"");
+//                String filePath = fileName.replaceAll(regex,"");
+//                foundFiles.put(fileName,filePath.isEmpty() ? "/" : "/?path=" + filePath);
+//            }
+//        }
+//        log.info("При поиске файлов и папок с именем <" + query + "> найдены: " + foundFiles);
+//        return foundFiles;
+//    }
+
     public Map<String,String> getFoundFiles(String userName, String query) {
         String userDirectory = getUserDirectory(userName);
         Set<String> allUserFiles = getAllFilesByDirectory(userDirectory);
         Map<String,String> foundFiles = new HashMap<>();
         for (String file : allUserFiles) {
-            if (file.endsWith("/" + query + "/")
-                    || file.contains("/" + query + ".")
-                    || file.contains("/" + query)) {
-                String regex = query.contains(".")
-                        ? Pattern.quote(query) : "\\b" + Pattern.quote(query) + "\\.[a-zA-Z0-9_-]+\\b";
-                String fileName = file.replace(userDirectory,"");
-                String filePath = fileName.replaceAll(regex,"");
-                foundFiles.put(fileName,filePath.isEmpty() ? "/" : "/?path=" + filePath);
+            String[] files = file.split("/");
+            //Неправильная логика построения пути к папке
+            String filePath = file.replace(userDirectory,"").replace(files[files.length-1],"");
+            String fileLink = filePath.isEmpty() ? "/" : "/?path=" + filePath;
+            if (query.split("\\.").length == 2 && query.equalsIgnoreCase(files[files.length-1])) {
+                foundFiles.put(files[files.length-1],fileLink);
+                continue;
             }
+            String fileName = files[files.length-1].split("\\.")[0];
+            if (fileName.isEmpty()) {
+                fileName = files[files.length-2];
+            }
+            if (query.equalsIgnoreCase(fileName)) {
+                foundFiles.put(files[files.length-1].isEmpty()
+                        ? (files[files.length-2] + "/")
+                        : files[files.length-1],fileLink);
+            }
+
+//            if (file.endsWith("/" + query + "/")
+//                    || file.contains("/" + query + ".")
+//                    || file.contains("/" + query)) {
+//                String regex = query.contains(".")
+//                        ? Pattern.quote(query) : "\\b" + Pattern.quote(query) + "\\.[a-zA-Z0-9_-]+\\b";
+//                String fileName = file.replace(userDirectory,"");
+//                String filePath = fileName.replaceAll(regex,"");
+//                foundFiles.put(fileName,filePath.isEmpty() ? "/" : "/?path=" + filePath);
+
         }
         log.info("При поиске файлов и папок с именем <" + query + "> найдены: " + foundFiles);
         return foundFiles;

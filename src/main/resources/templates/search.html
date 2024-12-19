@@ -24,11 +24,13 @@
             <button type="submit" class="btn btn-primary">Поиск</button>
         </div>
     </form>
+    <p>
+        <a th:href="@{/}">Вернуться на главную</a>
+    </p>
     <span>Здесь должны быть найденные файлы и папки.</span>
     <div th:each="file:${foundFiles.keySet()}">
         <a th:href="${foundFiles.get(file)}" th:text="${file}"></a>
     </div>
 </div>
-<a th:href="@{/}">Вернуться на главную</a>
 </body>
 </html>

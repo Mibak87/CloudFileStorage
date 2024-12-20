@@ -3,6 +3,7 @@ package main.cloudfilestorage.controller;
 import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.RegisterDto;
 import main.cloudfilestorage.dto.ViewFilesDto;
+import main.cloudfilestorage.exception.InvalidUrlException;
 import main.cloudfilestorage.exception.NonUniqueUserNameException;
 import main.cloudfilestorage.model.User;
 import main.cloudfilestorage.service.MinioService;
@@ -77,9 +78,14 @@ public class MainController {
         String username = authentication.getName();
         model.addAttribute("username", username);
         model.addAttribute("folder",path);
-        ViewFilesDto viewFilesDto = minioService.getUserFiles(username,path);
-        model.addAttribute("viewFilesDto", viewFilesDto);
-        return "files";
+        try {
+            ViewFilesDto viewFilesDto = minioService.getUserFiles(username, path);
+            model.addAttribute("viewFilesDto", viewFilesDto);
+            return "files";
+        } catch (InvalidUrlException e) {
+            model.addAttribute("error","Папки по этому пути не существует!");
+            return "error";
+        }
     }
 
     @GetMapping("/search")

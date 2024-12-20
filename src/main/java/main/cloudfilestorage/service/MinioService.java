@@ -97,7 +97,7 @@ public class MinioService {
                         ,fileDto.getFileName())));
     }
 
-    public ViewFilesDto getUserFiles(String userName, String path) {
+    public ViewFilesDto getUserFiles(String userName, String path) throws InvalidUrlException {
         ViewFilesDto viewFilesDto = new ViewFilesDto();
         String userDirectory = getUserDirectory(userName);
         if (path == null) {
@@ -107,6 +107,9 @@ public class MinioService {
         log.info("Получаем все файлы пользователя " + userName + " из папки " + userDirectory);
         List<String> allUserFiles = minioRepository.getFilesByDirectory(userDirectory);
         log.info("Вот они: " + allUserFiles);
+        if (allUserFiles.isEmpty()) {
+            throw new InvalidUrlException("Папки по этому пути не существует!");
+        }
         List<String> userFiles = new ArrayList<>();
         List<String> userDirectories = new ArrayList<>();
         Map<String,String> linkMap = new HashMap<>();

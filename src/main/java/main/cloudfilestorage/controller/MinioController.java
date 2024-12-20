@@ -34,7 +34,7 @@ public class MinioController {
     @PostMapping("/upload/file")
     public String uploadFileToMinIO(@RequestParam("file") MultipartFile file,@RequestParam("path") String path) {
         try {
-            log.info("Пытаемся загрузить на обменник файл в папку " + path);
+            log.info("Пытаемся загрузить на обменник файл в папку {}",path);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String userName = authentication.getName();
             String fileName = file.getOriginalFilename();
@@ -55,7 +55,7 @@ public class MinioController {
     @PostMapping("/upload/folder")
     public String uploadFolderToMinIO(@RequestParam("folder") List<MultipartFile> files, @RequestParam("path") String path) {
         try {
-            log.info("Пытаемся загрузить на обменник папку в папку " + path);
+            log.info("Пытаемся загрузить на обменник папку в папку {}",path);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String userName = authentication.getName();
             for (MultipartFile file : files) {
@@ -89,6 +89,7 @@ public class MinioController {
             minioService.deleteFile(fileDto);
         } catch (DeleteFileException e) {
             redirectAttributes.addFlashAttribute("error", "При удалении файла произошла ошибка!");
+            log.error("При удалении файла {} произошла ошибка!",fileToDelete);
         }
         return getURL(path);
     }
@@ -108,8 +109,10 @@ public class MinioController {
             minioService.renameFile(renameFileDto);
         } catch (RenameFileException e) {
             redirectAttributes.addFlashAttribute("error", "При переименовании файла (или папки) произошла ошибка!");
+            log.error("При удалении файла {} произошла ошибка!",fileName);
         } catch (NonUniqueFileNameException e) {
             redirectAttributes.addFlashAttribute("error", "Файл(папка) с таким именем уже существует в этой папке!");
+            log.error("Файл(папка) с именем {} уже существует в этой папке!",newFileName);
         }
         return getURL(path);
     }
@@ -129,6 +132,7 @@ public class MinioController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                     .body(file);
         } catch (DownloadFileException e) {
+            log.error("При скачивании файла {} произошла ошибка!",fileName);
             return ResponseEntity.badRequest().build();
         }
     }
@@ -151,6 +155,7 @@ public class MinioController {
             return getURL(path);
         } catch (DownloadFileException e) {
             redirectAttributes.addFlashAttribute("error", "Не удалось скачать папку!");
+            log.error("При скачивании папки {} произошла ошибка!",fileName);
             return getURL(path);
         }
     }
@@ -158,17 +163,19 @@ public class MinioController {
     @PostMapping("/create/folder")
     public String createFolder(@RequestParam String folderName,@RequestParam("path") String path,
                                RedirectAttributes redirectAttributes) {
-        log.info("Хотим создать папку " + folderName + " внутри папки " + path);
+        log.info("Хотим создать папку {} внутри папки {}.",folderName,path);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         if (folderName.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Название папки не должно быть пустым!");
+            log.error("Название папки не должно быть пустым!");
             return getURL(path);
         }
         try {
             minioService.createFolder(folderName, path, userName);
         } catch (CreateFolderException e) {
             redirectAttributes.addFlashAttribute("error", "При создании папки произошла ошибка!");
+            log.error("При создании папки {} произошла ошибка!",folderName);
         }
         return getURL(path);
     }
@@ -185,8 +192,10 @@ public class MinioController {
                 .build();
         try {
             minioService.deleteFolder(fileDto);
+            log.info("Папка {} удалена!",folderToDelete);
         } catch (DeleteFileException e) {
             redirectAttributes.addFlashAttribute("error", "При удалении папки произошла ошибка!");
+            log.error("При удалении папки {} произошла ошибка!",folderToDelete);
         }
         return getURL(path);
     }

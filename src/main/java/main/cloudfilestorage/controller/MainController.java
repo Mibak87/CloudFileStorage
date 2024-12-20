@@ -54,11 +54,11 @@ public class MainController {
             return "registration";
         }
         if (registerDto.getPassword().equals(registerDto.getConfirmPassword())) {
-            log.info("Регистрация пользователя <" + registerDto.getUserName() + ">");
+            log.info("Регистрация пользователя <{}>",registerDto.getUserName());
             User user = new User(registerDto.getUserName(),registerDto.getPassword());
             try {
                 userService.register(user);
-                log.info("Пользователь <" + registerDto.getUserName() + "> зарегистрирован.");
+                log.info("Пользователь <{}> зарегистрирован.",registerDto.getUserName());
             } catch (NonUniqueUserNameException e) {
                 log.error(e.toString());
                 model.addAttribute("userNameError", "Пользователь с таким именем уже существует!");
@@ -73,7 +73,7 @@ public class MainController {
 
     @GetMapping("/")
     public String files(@RequestParam(required = false) String path, Model model) {
-        log.info("Выбрана папка: " + path);
+        log.info("Выбрана папка: {}",path);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         model.addAttribute("username", username);
@@ -84,6 +84,7 @@ public class MainController {
             return "files";
         } catch (InvalidUrlException e) {
             model.addAttribute("error","Папки по этому пути не существует!");
+            log.error("Папки по пути {} не существует!",path);
             return "error";
         }
     }

@@ -41,14 +41,14 @@ public class MinioService {
     }
 
     public void deleteFile(FileDto fileDto) throws DeleteFileException {
-        log.info("Удаляем файл " + fileDto.getFileName() + " у пользователя " + fileDto.getUserName() + " .");
+        log.info("Удаляем файл {} у пользователя {}.",fileDto.getFileName(),fileDto.getUserName());
         minioRepository.deleteFile(getFileFullName(fileDto.getUserName()
                 , fileDto.getPath()
                 , fileDto.getFileName()));
     }
 
     public void renameFile(RenameFileDto renameFileDto) throws RenameFileException, NonUniqueFileNameException {
-        log.info("Переименование файла "+renameFileDto.getFileName()+" в файл "+renameFileDto.getNewFileName());
+        log.info("Переименование файла {} в файл {}.",renameFileDto.getFileName(),renameFileDto.getNewFileName());
         if (renameFileDto.getFileName().endsWith("/")) {
             renameFileDto.setNewFileName(renameFileDto.getNewFileName() + "/");
         }
@@ -68,11 +68,11 @@ public class MinioService {
     }
 
     public void downloadFolder(HttpServletResponse response,FileDto fileDto) throws DownloadFileException {
-        log.info("Скачиваем папку " + fileDto.getFileName() + " у пользователя " + fileDto.getUserName() + " .");
+        log.info("Скачиваем папку {} у пользователя {}.",fileDto.getFileName(),fileDto.getUserName());
         Set<String> filesToDownload = getAllFilesByDirectory(getFileFullName(fileDto.getUserName()
                 ,fileDto.getPath()
                 ,fileDto.getFileName()));
-        log.info("В этой папке находятся файлы: " + filesToDownload);
+        log.info("В этой папке находятся файлы: {}",filesToDownload);
         String folderPath = getUserDirectory(fileDto.getUserName()) + fileDto.getPath();
         try (ZipOutputStream zipOut = new ZipOutputStream(response.getOutputStream())) {
             for (String file : filesToDownload) {
@@ -91,7 +91,7 @@ public class MinioService {
     }
 
     public Resource downloadFile(FileDto fileDto) throws DownloadFileException {
-        log.info("Скачивание файла " + fileDto.getFileName());
+        log.info("Скачивание файла {}",fileDto.getFileName());
         return new InputStreamResource(minioRepository.downloadFile(getFileFullName(fileDto.getUserName()
                         ,fileDto.getPath()
                         ,fileDto.getFileName())));
@@ -104,7 +104,7 @@ public class MinioService {
             path = "";
         }
         userDirectory = userDirectory + path;
-        log.info("Получаем все файлы пользователя " + userName + " из папки " + userDirectory);
+        log.info("Получаем все файлы пользователя {} из папки {}.",userName,userDirectory);
         List<String> allUserFiles = minioRepository.getFilesByDirectory(userDirectory);
         log.info("Вот они: " + allUserFiles);
         if (allUserFiles.isEmpty()) {
@@ -151,11 +151,11 @@ public class MinioService {
     }
 
     public void deleteFolder(FileDto fileDto) throws DeleteFileException {
-        log.info("Удаляем папку " + fileDto.getFileName() + " у пользователя " + fileDto.getUserName() + " .");
+        log.info("Удаляем папку {} у пользователя {}.",fileDto.getFileName(),fileDto.getUserName());
         Set<String> filesToDelete = getAllFilesByDirectory(getFileFullName(fileDto.getUserName()
                                             ,fileDto.getPath()
                                             ,fileDto.getFileName()));
-        log.info("В этой папке находятся файлы: " + filesToDelete);
+        log.info("В этой папке находятся файлы: {}",filesToDelete);
         for (String file : filesToDelete) {
             minioRepository.deleteFile(file);
         }
@@ -184,7 +184,7 @@ public class MinioService {
                         : files[files.length-1],fileLink);
             }
         }
-        log.info("При поиске файлов и папок с именем <" + query + "> найдены: " + foundFiles);
+        log.info("При поиске файлов и папок с именем <{}> найдены: {}.",query,foundFiles);
         return foundFiles;
     }
 
@@ -209,7 +209,6 @@ public class MinioService {
                 allFiles.addAll(filesInInternalDirectory);
             }
         }
-        //log.info("В папке с именем <" + directory + "> найдены: " + allFiles);
         return allFiles;
     }
 }

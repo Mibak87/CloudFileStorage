@@ -12,7 +12,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public String handleMaxSizeException(MaxUploadSizeExceededException exc, Model model) {
-        log.error("Файл слишком большой: " + exc.getMessage());
+        log.error("Файл слишком большой: {}",exc.getMessage());
         model.addAttribute("error","Загружаемый файл должен быть не более 10 Мб!");
         return "error";
     }

@@ -26,7 +26,7 @@ public class MinioRepository {
     }
 
     public void uploadFile(String fileName, MultipartFile file) {
-        log.info("Загружаем файл: " + fileName);
+        log.info("Загружаем файл: {}",fileName);
         try (InputStream inputStream = file.getInputStream()) {
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket("user-files")
@@ -35,7 +35,7 @@ public class MinioRepository {
                     .build());
             log.info("Файл " + fileName + " успешно загружен.");
         } catch (Exception e) {
-            log.error("Не удалось загрузить файл: " + fileName);
+            log.error("Не удалось загрузить файл: {}",fileName);
         }
     }
 
@@ -53,7 +53,7 @@ public class MinioRepository {
                 files.add(item.objectName());
             }
         } catch (Exception e) {
-            log.error("Не удалось получить файлы из папки: " + userDirectory);
+            log.error("Не удалось получить файлы из папки: {}",userDirectory);
         }
         return files;
     }
@@ -65,9 +65,9 @@ public class MinioRepository {
                             .bucket("user-files")
                             .object(fileName)
                             .build());
-            log.info("Файл <" + fileName + "> удален.");
+            log.info("Файл <{}> удален.",fileName);
         } catch (Exception e) {
-            log.error("Не удалось удалить файл: " + fileName);
+            log.error("Не удалось удалить файл: {}",fileName);
             throw new DeleteFileException("Не удалось удалить файл: " + fileName);
         }
     }
@@ -86,7 +86,7 @@ public class MinioRepository {
                             .build());
             deleteFile(fileName);
         } catch (Exception e) {
-            log.error("Не удалось переименовать файл: " + fileName);
+            log.error("Не удалось переименовать файл: {}",fileName);
             throw new RenameFileException("Не удалось переименовать файл: " + fileName);
         }
     }
@@ -99,7 +99,7 @@ public class MinioRepository {
                             .object(fileName)
                             .build());
         } catch (Exception e) {
-            log.error("Не удалось скачать файл: " + fileName);
+            log.error("Не удалось скачать файл: {}",fileName);
             throw new DownloadFileException("Не удалось скачать файл: " + fileName);
         }
     }
@@ -113,9 +113,9 @@ public class MinioRepository {
                             .stream(new ByteArrayInputStream(new byte[0]), 0, -1)
                             .build()
             );
-            log.info("Создали папку с полным названием: " + folderName);
+            log.info("Создали папку с полным названием: {}",folderName);
         } catch (Exception e) {
-            log.error("Не удалось создать папку: " + folderName);
+            log.error("Не удалось создать папку: {}",folderName);
             throw new CreateFolderException("Не удалось создать папку: " + folderName);
         }
     }

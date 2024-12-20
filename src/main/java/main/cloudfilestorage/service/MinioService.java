@@ -73,11 +73,11 @@ public class MinioService {
                 ,fileDto.getPath()
                 ,fileDto.getFileName()));
         log.info("В этой папке находятся файлы: " + filesToDownload);
-        String userDirectory = getUserDirectory(fileDto.getUserName());
+        String folderPath = getUserDirectory(fileDto.getUserName()) + fileDto.getPath();
         try (ZipOutputStream zipOut = new ZipOutputStream(response.getOutputStream())) {
             for (String file : filesToDownload) {
                 if (!file.endsWith("/")) {
-                    ZipEntry zipEntry = new ZipEntry(file.replace(userDirectory,""));
+                    ZipEntry zipEntry = new ZipEntry(file.replace(folderPath,""));
                     zipOut.putNextEntry(zipEntry);
                     InputStream is = minioRepository.downloadFile(file);
                     StreamUtils.copy(is, zipOut);

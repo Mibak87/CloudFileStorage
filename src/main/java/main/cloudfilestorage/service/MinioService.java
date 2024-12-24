@@ -40,14 +40,14 @@ public class MinioService {
                 ,uploadFileDto.getMultipartFile());
     }
 
-    public void deleteFile(FileDto fileDto) throws DeleteFileException {
+    public void deleteFile(FileDto fileDto) {
         log.info("Удаляем файл {} у пользователя {}.",fileDto.getFileName(),fileDto.getUserName());
         minioRepository.deleteFile(getFileFullName(fileDto.getUserName()
                 , fileDto.getPath()
                 , fileDto.getFileName()));
     }
 
-    public void renameFile(RenameFileDto renameFileDto) throws RenameFileException, NonUniqueFileNameException {
+    public void renameFile(RenameFileDto renameFileDto) {
         log.info("Переименование файла {} в файл {}.",renameFileDto.getFileName(),renameFileDto.getNewFileName());
         if (renameFileDto.getFileName().endsWith("/")) {
             renameFileDto.setNewFileName(renameFileDto.getNewFileName() + "/");
@@ -67,7 +67,7 @@ public class MinioService {
                         ,renameFileDto.getNewFileName()));
     }
 
-    public void downloadFolder(HttpServletResponse response,FileDto fileDto) throws DownloadFileException {
+    public void downloadFolder(HttpServletResponse response,FileDto fileDto) {
         log.info("Скачиваем папку {} у пользователя {}.",fileDto.getFileName(),fileDto.getUserName());
         Set<String> filesToDownload = getAllFilesByDirectory(getFileFullName(fileDto.getUserName()
                 ,fileDto.getPath()
@@ -90,14 +90,14 @@ public class MinioService {
         }
     }
 
-    public Resource downloadFile(FileDto fileDto) throws DownloadFileException {
+    public Resource downloadFile(FileDto fileDto) {
         log.info("Скачивание файла {}",fileDto.getFileName());
         return new InputStreamResource(minioRepository.downloadFile(getFileFullName(fileDto.getUserName()
                         ,fileDto.getPath()
                         ,fileDto.getFileName())));
     }
 
-    public ViewFilesDto getUserFiles(String userName, String path) throws InvalidUrlException {
+    public ViewFilesDto getUserFiles(String userName, String path) {
         String userDirectory = getUserDirectory(userName);
         if (path == null) {
             path = "";
@@ -151,7 +151,7 @@ public class MinioService {
                 .build();
     }
 
-    public void createFolder(String folderName,String path,String userName) throws CreateFolderException {
+    public void createFolder(String folderName,String path,String userName) {
         minioRepository.createFolder(getFileFullName(userName,path,folderName));
     }
 
@@ -205,7 +205,7 @@ public class MinioService {
         return getUserDirectory(userName) + path + fileName;
     }
 
-    public Set<String> getAllFilesByDirectory(String directory) {
+    private Set<String> getAllFilesByDirectory(String directory) {
         List<String> files = minioRepository.getFilesByDirectory(directory);
         Set<String> allFiles = new HashSet<>(files);
         for (String file : files) {

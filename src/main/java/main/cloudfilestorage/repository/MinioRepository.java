@@ -58,7 +58,7 @@ public class MinioRepository {
         return files;
     }
 
-    public void deleteFile(String fileName) throws DeleteFileException {
+    public void deleteFile(String fileName) {
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
@@ -72,7 +72,7 @@ public class MinioRepository {
         }
     }
 
-    public void renameFile(String fileName, String newName) throws RenameFileException {
+    public void renameFile(String fileName, String newName) {
         try {
             minioClient.copyObject(
                     CopyObjectArgs.builder()
@@ -91,7 +91,7 @@ public class MinioRepository {
         }
     }
 
-    public InputStream downloadFile(String fileName) throws DownloadFileException {
+    public InputStream downloadFile(String fileName) {
         try {
             return minioClient.getObject(
                     GetObjectArgs.builder()
@@ -104,7 +104,7 @@ public class MinioRepository {
         }
     }
 
-    public void createFolder(String folderName) throws CreateFolderException {
+    public void createFolder(String folderName) {
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()

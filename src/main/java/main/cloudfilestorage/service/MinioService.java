@@ -98,7 +98,6 @@ public class MinioService {
     }
 
     public ViewFilesDto getUserFiles(String userName, String path) throws InvalidUrlException {
-        ViewFilesDto viewFilesDto = new ViewFilesDto();
         String userDirectory = getUserDirectory(userName);
         if (path == null) {
             path = "";
@@ -112,6 +111,24 @@ public class MinioService {
         }
         List<String> userFiles = new ArrayList<>();
         List<String> userDirectories = new ArrayList<>();
+        for (String userFile : allUserFiles) {
+            if (userFile.equals(userDirectory)) {
+                continue;
+            }
+            String files = userFile.replace(userDirectory,"");
+            if (files.endsWith("/")) {
+                userDirectories.add(files);
+                continue;
+            }
+            userFiles.add(files);
+        }
+        ViewFilesDto viewFilesDto = getViewFilesDto(path);
+        viewFilesDto.setFiles(userFiles);
+        viewFilesDto.setDirectories(userDirectories);
+        return viewFilesDto;
+    }
+
+    private ViewFilesDto getViewFilesDto(String path) {
         Map<String,String> linkMap = new HashMap<>();
         List<String> pathList = new ArrayList<>();
         String[] paths = ("/" + path).split("/");
@@ -127,23 +144,11 @@ public class MinioService {
             }
             linkMap.put(singlePath + "/", linkPath.append(singlePath).append("/").toString());
         }
-        viewFilesDto.setPathList(pathList);
-        viewFilesDto.setPath(path);
-        viewFilesDto.setLinkMap(linkMap);
-        for (String userFile : allUserFiles) {
-            if (userFile.equals(userDirectory)) {
-                continue;
-            }
-            String files = userFile.split(userDirectory)[1];
-            if (files.endsWith("/")) {
-                userDirectories.add(files);
-                continue;
-            }
-            userFiles.add(files);
-        }
-        viewFilesDto.setFiles(userFiles);
-        viewFilesDto.setDirectories(userDirectories);
-        return viewFilesDto;
+        return ViewFilesDto.builder()
+                .pathList(pathList)
+                .path(path)
+                .linkMap(linkMap)
+                .build();
     }
 
     public void createFolder(String folderName,String path,String userName) throws CreateFolderException {

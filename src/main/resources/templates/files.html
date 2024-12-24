@@ -121,10 +121,7 @@
             <button type="submit" class="btn btn-primary">Удалить</button>
         </form>
         <button class="openModal btn btn-primary">Переименовать</button>
-        <!--        <form th:action="@{/download}" method="get">-->
-        <!--            <input type="hidden" name="fileName" th:value="${file}"/>-->
-        <!--            <button type="submit" class="btn btn-primary">Скачать</button>-->
-        <!--        </form>-->
+
         <a th:href="@{/download/file(fileName=${file},path=${folder})}" th:download="${file}">Скачать файл</a>
         <!-- Всплывающее окно -->
         <div class="modal">
@@ -162,7 +159,7 @@
                 <input type="hidden" name="path" th:value="${folder}"/>
             </div>
             <div>
-                <button class="btn btn-primary">Загрузить</button>
+                <button class="btn btn-primary" id="upload-file-button" disabled>Загрузить</button>
             </div>
             <p id="error-message" style="color: red; display: none;">Допустимый размер файла не должен превышать 10 Мб.</p>
         </form>
@@ -177,8 +174,9 @@
                 <input type="hidden" name="path" th:value="${folder}"/>
             </div>
             <div>
-                <button class="btn btn-primary">Загрузить</button>
+                <button class="btn btn-primary" id="upload-folder-button" disabled>Загрузить</button>
             </div>
+            <p id="error-folder-message" style="color: red; display: none;">Допустимый размер папки не должен превышать 10 Мб.</p>
         </form>
     </div>
 </div>
@@ -204,19 +202,40 @@
         const file = event.target.files[0];
         const maxSize = 10 * 1024 * 1024;
         const errorMessage = document.getElementById('error-message');
+        const uploadFileButton = document.getElementById('upload-file-button');
 
         if (file) {
             if (file.size > maxSize) {
                 errorMessage.style.display = 'block';
                 event.target.value = '';
+                uploadFileButton.disabled = true;
             } else {
                 errorMessage.style.display = 'none';
+                uploadFileButton.disabled = false;
             }
         } else {
             errorMessage.style.display = 'none';
+            uploadFileButton.disabled = false;
         }
     });
+    document.getElementById('directory').addEventListener('change', function(event) {
+        const files = event.target.files;
+        let totalSize = 0;
+        for (let i = 0; i < files.length; i++) {
+            totalSize += files[i].size;
+        }
+        const maxSize = 10 * 1024 * 1024;
+        const errorMessage = document.getElementById('error-folder-message');
+        const uploadFolderButton = document.getElementById('upload-folder-button');
 
+        if (totalSize > maxSize) {
+            errorMessage.style.display = 'block';
+            uploadFolderButton.disabled = true;
+        } else {
+            errorMessage.style.display = 'none';
+            uploadFolderButton.disabled = false;
+        }
+    });
 </script>
 </body>
 </html>

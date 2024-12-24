@@ -53,7 +53,7 @@ public class StorageController {
     }
 
     @PostMapping("/upload/folder")
-    public String uploadFolderToStorage(@RequestParam List<MultipartFile> files, @RequestParam("path") String path) {
+    public String uploadFolderToStorage(@RequestParam("folder") List<MultipartFile> files, @RequestParam("path") String path) {
         try {
             log.info("Пытаемся загрузить на обменник папку в папку {}",path);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

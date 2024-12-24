@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
+import main.cloudfilestorage.dto.UploadFolderDto;
 import main.cloudfilestorage.exception.*;
 import main.cloudfilestorage.service.StorageService;
 import org.springframework.core.io.Resource;
@@ -52,21 +53,17 @@ public class StorageController {
     }
 
     @PostMapping("/upload/folder")
-    public String uploadFolderToStorage(@RequestParam("folder") List<MultipartFile> files, @RequestParam("path") String path) {
+    public String uploadFolderToStorage(@RequestParam List<MultipartFile> files, @RequestParam("path") String path) {
         try {
             log.info("Пытаемся загрузить на обменник папку в папку {}",path);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String userName = authentication.getName();
-            for (MultipartFile file : files) {
-                String fileName = file.getOriginalFilename();
-                UploadFileDto uploadFileDto = UploadFileDto.builder()
-                        .userName(userName)
-                        .fileName(fileName)
-                        .path(path)
-                        .multipartFile(file)
-                        .build();
-                storageService.uploadFile(uploadFileDto);
-            }
+            UploadFolderDto uploadFolderDto = UploadFolderDto.builder()
+                    .userName(userName)
+                    .path(path)
+                    .multipartFiles(files)
+                    .build();
+            storageService.uploadFolder(uploadFolderDto);
         } catch (Exception e) {
             log.error("Загрузка не удалась.");
         }

@@ -2,10 +2,7 @@ package main.cloudfilestorage.service;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import main.cloudfilestorage.dto.FileDto;
-import main.cloudfilestorage.dto.RenameFileDto;
-import main.cloudfilestorage.dto.UploadFileDto;
-import main.cloudfilestorage.dto.ViewFilesDto;
+import main.cloudfilestorage.dto.*;
 import main.cloudfilestorage.exception.*;
 import main.cloudfilestorage.repository.MinioRepository;
 import main.cloudfilestorage.repository.UserRepository;
@@ -14,6 +11,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.*;
@@ -38,6 +36,19 @@ public class StorageService {
                 ,uploadFileDto.getPath()
                 ,uploadFileDto.getFileName())
                 ,uploadFileDto.getMultipartFile());
+    }
+
+    public void uploadFolder(UploadFolderDto uploadFolderDto) {
+        for (MultipartFile file : uploadFolderDto.getMultipartFiles()) {
+            String fileName = file.getOriginalFilename();
+            UploadFileDto uploadFileDto = UploadFileDto.builder()
+                    .userName(uploadFolderDto.getUserName())
+                    .fileName(fileName)
+                    .path(uploadFolderDto.getPath())
+                    .multipartFile(file)
+                    .build();
+            uploadFile(uploadFileDto);
+        }
     }
 
     public void deleteFile(FileDto fileDto) {

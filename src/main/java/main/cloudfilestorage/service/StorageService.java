@@ -23,12 +23,12 @@ import java.util.zip.ZipOutputStream;
 
 @Slf4j
 @Service
-public class MinioService {
+public class StorageService {
     private final MinioRepository minioRepository;
     private final UserRepository userRepository;
 
     @Autowired
-    public MinioService(MinioRepository minioRepository, UserRepository userRepository) {
+    public StorageService(MinioRepository minioRepository, UserRepository userRepository) {
         this.minioRepository = minioRepository;
         this.userRepository = userRepository;
     }

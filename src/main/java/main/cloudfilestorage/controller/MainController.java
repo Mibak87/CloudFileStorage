@@ -6,7 +6,7 @@ import main.cloudfilestorage.dto.ViewFilesDto;
 import main.cloudfilestorage.exception.InvalidUrlException;
 import main.cloudfilestorage.exception.NonUniqueUserNameException;
 import main.cloudfilestorage.model.User;
-import main.cloudfilestorage.service.MinioService;
+import main.cloudfilestorage.service.StorageService;
 import main.cloudfilestorage.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -22,12 +22,12 @@ import java.util.Map;
 public class MainController {
 
     private final UserService userService;
-    private final MinioService minioService;
+    private final StorageService storageService;
 
     @Autowired
-    public MainController(UserService userService, MinioService minioService) {
+    public MainController(UserService userService, StorageService storageService) {
         this.userService = userService;
-        this.minioService = minioService;
+        this.storageService = storageService;
     }
 
     @RequestMapping("/login")
@@ -79,7 +79,7 @@ public class MainController {
         model.addAttribute("username", username);
         model.addAttribute("folder",path);
         try {
-            ViewFilesDto viewFilesDto = minioService.getUserFiles(username, path);
+            ViewFilesDto viewFilesDto = storageService.getUserFiles(username, path);
             model.addAttribute("viewFilesDto", viewFilesDto);
             return "files";
         } catch (InvalidUrlException e) {
@@ -94,7 +94,7 @@ public class MainController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         model.addAttribute("username", username);
-        Map<String,String> foundFiles = minioService.getFoundFiles(username,query);
+        Map<String,String> foundFiles = storageService.getFoundFiles(username,query);
         model.addAttribute("foundFiles",foundFiles);
         return "search";
     }

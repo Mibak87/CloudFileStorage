@@ -6,7 +6,7 @@ import main.cloudfilestorage.dto.FileDto;
 import main.cloudfilestorage.dto.RenameFileDto;
 import main.cloudfilestorage.dto.UploadFileDto;
 import main.cloudfilestorage.exception.*;
-import main.cloudfilestorage.service.MinioService;
+import main.cloudfilestorage.service.StorageService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +23,16 @@ import java.util.List;
 
 @Slf4j
 @Controller
-public class MinioController {
+public class StorageController {
 
-    private final MinioService minioService;
+    private final StorageService storageService;
 
-    public MinioController(MinioService minioService) {
-        this.minioService = minioService;
+    public StorageController(StorageService storageService) {
+        this.storageService = storageService;
     }
 
     @PostMapping("/upload/file")
-    public String uploadFileToMinIO(@RequestParam("file") MultipartFile file,@RequestParam("path") String path) {
+    public String uploadFileToStorage(@RequestParam("file") MultipartFile file, @RequestParam("path") String path) {
         try {
             log.info("Пытаемся загрузить на обменник файл в папку {}",path);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -44,16 +44,15 @@ public class MinioController {
                     .path(path)
                     .multipartFile(file)
                     .build();
-            minioService.uploadFile(uploadFileDto);
+            storageService.uploadFile(uploadFileDto);
         } catch (Exception e) {
             log.error("Загрузка не удалась.");
-            e.printStackTrace();
         }
         return getURL(path);
     }
 
     @PostMapping("/upload/folder")
-    public String uploadFolderToMinIO(@RequestParam("folder") List<MultipartFile> files, @RequestParam("path") String path) {
+    public String uploadFolderToStorage(@RequestParam("folder") List<MultipartFile> files, @RequestParam("path") String path) {
         try {
             log.info("Пытаемся загрузить на обменник папку в папку {}",path);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -66,18 +65,17 @@ public class MinioController {
                         .path(path)
                         .multipartFile(file)
                         .build();
-                minioService.uploadFile(uploadFileDto);
+                storageService.uploadFile(uploadFileDto);
             }
         } catch (Exception e) {
             log.error("Загрузка не удалась.");
-            e.printStackTrace();
         }
         return getURL(path);
     }
 
     @PostMapping("/delete/file")
-    public String deleteFileFromMinio(@RequestParam String fileToDelete,@RequestParam("path") String path,
-             RedirectAttributes redirectAttributes) {
+    public String deleteFileFromStorage(@RequestParam String fileToDelete, @RequestParam("path") String path,
+                                        RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()
@@ -86,7 +84,7 @@ public class MinioController {
                 .path(path)
                 .build();
         try {
-            minioService.deleteFile(fileDto);
+            storageService.deleteFile(fileDto);
         } catch (DeleteFileException e) {
             redirectAttributes.addFlashAttribute("error", "При удалении файла произошла ошибка!");
             log.error("При удалении файла {} произошла ошибка!",fileToDelete);
@@ -106,7 +104,7 @@ public class MinioController {
                 .newFileName(newFileName)
                 .build();
         try {
-            minioService.renameFile(renameFileDto);
+            storageService.renameFile(renameFileDto);
         } catch (RenameFileException e) {
             redirectAttributes.addFlashAttribute("error", "При переименовании файла (или папки) произошла ошибка!");
             log.error("При удалении файла {} произошла ошибка!",fileName);
@@ -127,7 +125,7 @@ public class MinioController {
                 .path(path)
                 .build();
         try {
-            Resource file = minioService.downloadFile(fileDto);
+            Resource file = storageService.downloadFile(fileDto);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
                     .body(file);
@@ -151,7 +149,7 @@ public class MinioController {
             String outputName = fileName.replace("/", "") + ".zip";
             response.setContentType("application/zip");
             response.setHeader("Content-Disposition", "attachment; filename=" + outputName);
-            minioService.downloadFolder(response, fileDto);
+            storageService.downloadFolder(response, fileDto);
             return getURL(path);
         } catch (DownloadFileException e) {
             redirectAttributes.addFlashAttribute("error", "Не удалось скачать папку!");
@@ -172,7 +170,7 @@ public class MinioController {
             return getURL(path);
         }
         try {
-            minioService.createFolder(folderName, path, userName);
+            storageService.createFolder(folderName, path, userName);
         } catch (CreateFolderException e) {
             redirectAttributes.addFlashAttribute("error", "При создании папки произошла ошибка!");
             log.error("При создании папки {} произошла ошибка!",folderName);
@@ -181,8 +179,8 @@ public class MinioController {
     }
 
     @PostMapping("/delete/folder")
-    public String deleteFolderFromMinio(@RequestParam String folderToDelete,@RequestParam("path") String path,
-                                        RedirectAttributes redirectAttributes) {
+    public String deleteFolderFromStorage(@RequestParam String folderToDelete, @RequestParam("path") String path,
+                                          RedirectAttributes redirectAttributes) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
         FileDto fileDto = FileDto.builder()
@@ -191,7 +189,7 @@ public class MinioController {
                 .path(path)
                 .build();
         try {
-            minioService.deleteFolder(fileDto);
+            storageService.deleteFolder(fileDto);
             log.info("Папка {} удалена!",folderToDelete);
         } catch (DeleteFileException e) {
             redirectAttributes.addFlashAttribute("error", "При удалении папки произошла ошибка!");

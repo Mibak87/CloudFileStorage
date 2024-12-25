@@ -15,7 +15,7 @@ public class MinioConfiguration {
         MinioClient minioClient =
                 MinioClient.builder()
                         .endpoint("http://127.0.0.1:9000")
-                        .credentials("minioadmin", "minioadmin")
+                        .credentials("qU76th-3Uh", "yuThGF65tg")
                         .build();
         try {
             boolean found =

@@ -117,7 +117,7 @@ public class StorageService {
         log.info("Получаем все файлы пользователя {} из папки {}.",userName,userDirectory);
         List<String> allUserFiles = minioRepository.getFilesByDirectory(userDirectory);
         log.info("Вот они: " + allUserFiles);
-        if (allUserFiles.isEmpty()) {
+        if (allUserFiles.isEmpty() && !path.isEmpty()) {
             throw new InvalidUrlException("Папки по этому пути не существует!");
         }
         List<String> userFiles = new ArrayList<>();

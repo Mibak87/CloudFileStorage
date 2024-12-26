@@ -7,6 +7,7 @@ import main.cloudfilestorage.exception.CreateFolderException;
 import main.cloudfilestorage.exception.DeleteFileException;
 import main.cloudfilestorage.exception.DownloadFileException;
 import main.cloudfilestorage.exception.RenameFileException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +20,8 @@ import java.util.List;
 @Repository
 public class MinioRepository {
 
+    @Value("${MINIO_BUCKET}")
+    private String bucketName;
     private final MinioClient minioClient;
 
     public MinioRepository(MinioClient minioClient) {
@@ -29,7 +32,7 @@ public class MinioRepository {
         log.info("Загружаем файл: {}",fileName);
         try (InputStream inputStream = file.getInputStream()) {
             minioClient.putObject(PutObjectArgs.builder()
-                    .bucket("user-files")
+                    .bucket(bucketName)
                     .object(fileName)
                     .stream(inputStream, -1, 10485760)
                     .build());
@@ -44,7 +47,7 @@ public class MinioRepository {
         try {
             Iterable<Result<Item>> results = minioClient.listObjects(
                     ListObjectsArgs.builder()
-                            .bucket("user-files")
+                            .bucket(bucketName)
                             .prefix(userDirectory)
                             .build()
             );
@@ -62,7 +65,7 @@ public class MinioRepository {
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
-                            .bucket("user-files")
+                            .bucket(bucketName)
                             .object(fileName)
                             .build());
             log.info("Файл <{}> удален.",fileName);
@@ -76,11 +79,11 @@ public class MinioRepository {
         try {
             minioClient.copyObject(
                     CopyObjectArgs.builder()
-                            .bucket("user-files")
+                            .bucket(bucketName)
                             .object(newName)
                             .source(
                                     CopySource.builder()
-                                            .bucket("user-files")
+                                            .bucket(bucketName)
                                             .object(fileName)
                                             .build())
                             .build());
@@ -95,7 +98,7 @@ public class MinioRepository {
         try {
             return minioClient.getObject(
                     GetObjectArgs.builder()
-                            .bucket("user-files")
+                            .bucket(bucketName)
                             .object(fileName)
                             .build());
         } catch (Exception e) {
@@ -108,7 +111,7 @@ public class MinioRepository {
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
-                            .bucket("user-files")
+                            .bucket(bucketName)
                             .object(folderName + "/")
                             .stream(new ByteArrayInputStream(new byte[0]), 0, -1)
                             .build()

@@ -4,27 +4,36 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
 public class MinioConfiguration {
+
+    @Value ("${MINIO_ACCESS}")
+    private String minioAccess;
+    @Value ("${MINIO_SECRET}")
+    private String minioSecret;
+    @Value ("${MINIO_BUCKET}")
+    private String bucketName;
+
     @Bean
     public MinioClient minioClient() {
         MinioClient minioClient =
                 MinioClient.builder()
                         .endpoint("http://127.0.0.1:9000")
-                        .credentials("qU76th-3Uh", "yuThGF65tg")
+                        .credentials(minioAccess, minioSecret)
                         .build();
         try {
             boolean found =
-                    minioClient.bucketExists(BucketExistsArgs.builder().bucket("user-files").build());
+                    minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build());
             if (!found) {
                 minioClient.makeBucket(
                         MakeBucketArgs
                                 .builder()
-                                .bucket("user-files")
+                                .bucket(bucketName)
                                 .build());
             } else {
                 log.info("Такая корзина уже есть!");
